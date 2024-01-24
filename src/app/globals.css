@@ -1,0 +1,122 @@
+body {
+    padding: 10px 10px 30px;
+}
+h1 {
+    font-size: 24px;
+    text-align: center;
+    line-height: 0.5;
+}
+
+p {
+    line-height: 1.5;
+}
+
+ol {
+    margin-bottom: 20px;
+}
+
+li {
+    padding-left: 20px;
+    position: relative;
+}
+ol {
+    display: block;
+    padding: 0 0 0 26px;
+    list-style: none;
+    overflow: hidden;
+    counter-reset: numList;
+}
+ol li:before {
+    counter-increment: numList;
+    content: counter(numList);
+    float: left;
+    position: absolute;
+    left: -26px;
+    font: bold 12px sans-serif;
+    text-align: center;
+    color: #fff;
+    line-height: 30px;
+    width: 30px; height: 30px;
+    background: #FF6400;
+    -moz-border-radius: 999px;
+    border-radius: 999px
+}
+
+button {
+    background-color: #FF6400;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+image {
+    height: 579px;
+    width: 343px;
+}
+
+.attribution {
+    font-size: 12px;
+    text-align: right;
+}
+.txt-red {
+    color:#FF6400;
+}
+.img-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Header*/
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    width: 170px;
+    margin-right: 10px;
+}
+
+.nav-text {
+    font-size: 18px;
+}
+
+.router-btn {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    padding: 15px;
+    width: 90%;
+}
+
+/* Consulting form*/
+form {
+    max-width: 400px;
+    width: 100%;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+/* Radio Gender*/
