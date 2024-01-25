@@ -1,9 +1,11 @@
 'use client'
-import Header from "@/layouts/Header";
 import React, {useState} from "react";
+import {useRouter} from "next/navigation";
+import Header from "@/layouts/Header";
 import province from "@/lib/province.json"
 
 const Consulting = () => {
+    const router = useRouter()
     const [formData, setFormData] = useState({
         gender: 'MALE',
         year: '',
@@ -17,6 +19,7 @@ const Consulting = () => {
     const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         console.log('Form data submitted:', formData);
+        return router.push('life-plan')
     };
 
     return (

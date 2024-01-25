@@ -15,7 +15,7 @@ const Header = (props:{step: number}) => {
                 <div className="logo" onClick={handleClick}>
                     <Image src={logo} alt={'Logo'}/>
                 </div>
-                <span className="nav-text"><h4>{text}</h4></span>
+                <span className="nav-text">{text}</span>
             </nav>
         </>
     )

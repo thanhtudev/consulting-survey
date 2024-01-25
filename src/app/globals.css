@@ -1,5 +1,14 @@
 body {
     padding: 10px 10px 30px;
+    background-color: #ffffff;
+}
+.frame {
+    max-width: 768px;
+    min-width: 320px;
+    margin: 0 auto;
+    padding: 20px 0 100px 0;
+    box-sizing: border-box;
+    height: auto;
 }
 h1 {
     font-size: 24px;
@@ -16,6 +25,7 @@ ol {
 }
 
 li {
+    padding-bottom: 20px;
     padding-left: 20px;
     position: relative;
 }
@@ -57,9 +67,15 @@ button {
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
-    width: 90%;
     height: 48px;
     padding: 5px 20px;
+    width: calc(100% - 36px);
+    max-width: 768px;
+}
+@media only screen and (min-width: 800px){
+    .router-btn {
+        width: 100%;
+    }
 }
 
 image {
@@ -99,7 +115,8 @@ nav {
 }
 
 .nav-text {
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 /* Consulting form*/
@@ -113,12 +130,9 @@ label {
 }
 
 select {
-    height: 43px;
     border-radius: 8px;
     border-style: solid;
     border-color: #C7C7CC;
-    justify-content: space-between;
-    width: 90%;
     padding: 5px 19px;
 
 }
@@ -130,9 +144,9 @@ select {
     -moz-appearance: none;
     appearance: none;
     text-indent: 1px;
-    text-overflow: '';
     background-repeat: no-repeat;
-    background-position: right 0.5rem center
+    background-position: right 0.5rem center;
+    background-color: #ffffff;
 }
 #year {
     background-image: url(../assets/images/calendar.svg);
@@ -193,8 +207,10 @@ input[type="radio"] + label {
     color: #FF2D55;
 }
 
-
 .label-txt {
  width: 100px;
 }
+
+/* Time life */
+
 

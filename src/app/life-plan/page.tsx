@@ -6,7 +6,7 @@ const LifePlan = () => {
     return (
         <>
             <Header step={2}/>
-            <h1 className='mb-12 text-6xl text-gray-900 dark:text-gray-100'>Life plan</h1>
+            <p>Đây là kế hoạch đề xuất cho cuộc đời bạn (Life plan)</p>
             <RouterButton url={'report'} text={'Tiếp tục'}/>
         </>
     );

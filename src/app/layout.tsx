@@ -20,7 +20,9 @@ export default function RootLayout({ children}: Readonly<{children: React.ReactN
     return (
         <html lang="en">
         <body className={inter.className}>
+        <div className="frame">
         {children}
+        </div>
         </body>
         </html>
     );
