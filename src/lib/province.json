@@ -1,0 +1,254 @@
+[
+  {
+    "code": "HA NOI",
+    "name": "Hà Nội"
+  },
+  {
+    "code": "HO CHI MINH",
+    "name": "Hồ Chí Minh"
+  },
+  {
+    "code": "HAI PHONG",
+    "name": "Hải Phòng"
+  },
+  {
+    "code": "CAN THO",
+    "name": "Cần Thơ"
+  },
+  {
+    "code": "DA NANG",
+    "name": "Ðà Nẵng"
+  },
+  {
+    "code": "AN GIANG",
+    "name": "An Giang"
+  },
+  {
+    "code": "BA RIA - VUNG TAU",
+    "name": "Bà Rịa - Vũng Tàu"
+  },
+  {
+    "code": "BAC GIANG",
+    "name": "Bắc Giang"
+  },
+  {
+    "code": "BAC KAN",
+    "name": "Bắc Kạn"
+  },
+  {
+    "code": "BAC LIEU",
+    "name": "Bạc Liêu"
+  },
+  {
+    "code": "BAC NINH",
+    "name": "Bắc Ninh"
+  },
+  {
+    "code": "BEN TRE",
+    "name": "Bến Tre"
+  },
+  {
+    "code": "BINH DINH",
+    "name": "Bình Ðịnh"
+  },
+  {
+    "code": "BINH DUONG",
+    "name": "Bình Dương"
+  },
+  {
+    "code": "BINH PHUOC",
+    "name": "Bình Phước"
+  },
+  {
+    "code": "BINH THUAN",
+    "name": "Bình Thuận"
+  },
+  {
+    "code": "CA MAU",
+    "name": "Cà Mau"
+  },
+  {
+    "code": "CAO BANG",
+    "name": "Cao Bằng"
+  },
+  {
+    "code": "DAK LAK",
+    "name": "Ðắk Lắk"
+  },
+  {
+    "code": "DAK NONG",
+    "name": "Ðắk Nông"
+  },
+  {
+    "code": "DIEN BIEN",
+    "name": "Ðiện Biên"
+  },
+  {
+    "code": "DONG NAI",
+    "name": "Ðồng Nai"
+  },
+  {
+    "code": "DONG THAP",
+    "name": "Ðồng Tháp"
+  },
+  {
+    "code": "GIA LAI",
+    "name": "Gia Lai"
+  },
+  {
+    "code": "HA GIANG",
+    "name": "Hà Giang"
+  },
+  {
+    "code": "HA NAM",
+    "name": "Hà Nam"
+  },
+  {
+    "code": "HA TINH",
+    "name": "Hà Tĩnh"
+  },
+  {
+    "code": "HAI DUONG",
+    "name": "Hải Dương"
+  },
+  {
+    "code": "HAU GIANG",
+    "name": "Hậu Giang"
+  },
+  {
+    "code": "HOA BINH",
+    "name": "Hòa Bình"
+  },
+  {
+    "code": "HUNG YEN",
+    "name": "Hưng Yên"
+  },
+  {
+    "code": "KHANH HOA",
+    "name": "Khánh Hòa"
+  },
+  {
+    "code": "KIEN GIANG",
+    "name": "Kiên Giang"
+  },
+  {
+    "code": "KON TUM",
+    "name": "Kon Tum"
+  },
+  {
+    "code": "LAI CHAU",
+    "name": "Lai Châu"
+  },
+  {
+    "code": "LAM DONG",
+    "name": "Lâm Ðồng"
+  },
+  {
+    "code": "LANG SON",
+    "name": "Lạng Sơn"
+  },
+  {
+    "code": "LAO CAI",
+    "name": "Lào Cai"
+  },
+  {
+    "code": "LONG AN",
+    "name": "Long An"
+  },
+  {
+    "code": "NAM DINH",
+    "name": "Nam Ðịnh"
+  },
+  {
+    "code": "NGHE AN",
+    "name": "Nghệ An"
+  },
+  {
+    "code": "NINH BINH",
+    "name": "Ninh Bình"
+  },
+  {
+    "code": "NINH THUAN",
+    "name": "Ninh Thuận"
+  },
+  {
+    "code": "PHU THO",
+    "name": "Phú Thọ"
+  },
+  {
+    "code": "PHU YEN",
+    "name": "Phú Yên"
+  },
+  {
+    "code": "QUANG BINH",
+    "name": "Quảng Bình"
+  },
+  {
+    "code": "QUANG NAM",
+    "name": "Quảng Nam"
+  },
+  {
+    "code": "QUANG NGAI",
+    "name": "Quảng Ngãi"
+  },
+  {
+    "code": "QUANG NINH",
+    "name": "Quảng Ninh"
+  },
+  {
+    "code": "QUANG TRI",
+    "name": "Quảng Trị"
+  },
+  {
+    "code": "SOC TRANG",
+    "name": "Sóc Trăng"
+  },
+  {
+    "code": "SON LA",
+    "name": "Sơn La"
+  },
+  {
+    "code": "TAY NINH",
+    "name": "Tây Ninh"
+  },
+  {
+    "code": "THAI BINH",
+    "name": "Thái Bình"
+  },
+  {
+    "code": "THAI NGUYEN",
+    "name": "Thái Nguyên"
+  },
+  {
+    "code": "THANH HOA",
+    "name": "Thanh Hóa"
+  },
+  {
+    "code": "THUA THIEN HUE",
+    "name": "Thừa Thiên Huế"
+  },
+  {
+    "code": "TIEN GIANG",
+    "name": "Tiền Giang"
+  },
+  {
+    "code": "TRA VINH",
+    "name": "Trà Vinh"
+  },
+  {
+    "code": "TUYEN QUANG",
+    "name": "Tuyên Quang"
+  },
+  {
+    "code": "VINH LONG",
+    "name": "Vĩnh Long"
+  },
+  {
+    "code": "VINH PHUC",
+    "name": "Vĩnh Phúc"
+  },
+  {
+    "code": "YEN BAI",
+    "name": "Yên Bái"
+  }
+]

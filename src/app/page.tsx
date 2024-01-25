@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import homeBanner from "@/assets/images/Blue Welcome to School Library Banner 1.png";
+import homeBanner from "@/assets/images/Blue Welcome to School Library Banner 2.svg";
 import RouterButton from "@/components/RouterButton";
 import Header from "@/layouts/Header";
 import React from "react";

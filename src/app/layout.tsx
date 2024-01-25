@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 import React from "react";
 import {Inter} from "next/font/google";
 import "./globals.css";
-import Header from '../layouts/Header'
+import "../assets/css/font-awesome-4.7.0/css/font-awesome.min.css"
 import Favicon from '../../public/favicon.ico'
 
 const inter = Inter({subsets: ["latin"]});
