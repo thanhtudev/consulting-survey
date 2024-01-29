@@ -2,6 +2,7 @@ import React from "react";
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
 import coordinatesData from "@/lib/life-plan-coordinator.json"
+import BottomModal from "@/components/BottomModal";
 
 const LifePlan = () => {
     // input user age
@@ -79,6 +80,7 @@ const LifePlan = () => {
                     ))}
                 </svg>
             </div>
+            <BottomModal/>
             <RouterButton url={'report'} text={'Tiếp tục'}/>
         </>
     );
