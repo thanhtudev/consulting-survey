@@ -1,9 +1,11 @@
 "use client"
-import React from "react";
+import React, { useEffect, useRef } from 'react';
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
 import coordinatesData from "@/lib/life-plan-coordinator.json"
 import BottomModal from "@/components/BottomModal";
+import * as d3 from "d3";
+import LifePlanEventTag from "@/components/LifePlanEventTag";
 
 const LifePlan = () => {
     // input user age
@@ -62,30 +64,9 @@ const LifePlan = () => {
                                     <text x={15} y={cy} textAnchor="middle" dy="0.3em" fill="#C7C7CC" style={{ fontSize: '10px' }}>&#x2022; {age}</text>
                                 )
                             }
-                            {[31, 34,35, 60, 65, 77,98].includes(age) && (
-                                <>
-                                    <g onMouseDown={drag} onMouseUp={drop}>
-                                        <circle key={index} cx={cx + chartXOffset} cy={cy} r={10} fill="#FF6400"/>
-                                        <text x={cx + chartXOffset} y={cy} textAnchor="middle" dy="0.3em" fill="#FFF"
-                                              style={{fontSize: '10px'}}>{age}</text>
-                                        <line
-                                            x1={cx + chartXOffset + 10}
-                                            y1={cy}
-                                            x2={cx + chartXOffset + 30}
-                                            y2={cy}
-                                            stroke="#FF6400"
-                                            strokeWidth="1"/>
-                                        <rect
-                                            x={cx + chartXOffset + 30 - 5}
-                                            y={cy - 10}
-                                            width="100"
-                                            height="20"
-                                            rx="4"
-                                            ry="4"
-                                            fill="#FF6400"/>
-                                    </g>
-
-                                </>)
+                            {[31, 34, 35, 60, 65, 77, 98].includes(age) && (
+                                <LifePlanEventTag index={index} cx={cx} cy={cy} chartXOffset={chartXOffset} age={age}/>
+                            )
                             }
                         </g>
                     ))}

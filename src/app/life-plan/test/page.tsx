@@ -52,6 +52,7 @@ const Test = () => {
             <RouterButton url={'report'} text={'Tiếp tục'}/>
         </>
     );
-}
+};
 
-export default Test
+export default Test;
+
