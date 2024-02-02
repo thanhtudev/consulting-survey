@@ -5,9 +5,18 @@ const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartX
     return(
         <>
             <g>
-                <circle key={index} cx={cx + chartXOffset} cy={cy} r={10} fill="#FF6400"/>
-                <text x={cx + chartXOffset} y={cy} textAnchor="middle" dy="0.3em" fill="#FFF"
-                      style={{fontSize: '10px'}}>{age}</text>
+                <circle
+                    cx={cx + chartXOffset}
+                    cy={cy}
+                    r={10}
+                    fill="#FF6400"/>
+                <text
+                    x={cx + chartXOffset}
+                    y={cy}
+                    textAnchor="middle"
+                    dy="0.3em"
+                    fill="#FFF"
+                    style={{fontSize: '10px'}}>{age}</text>
                 <line
                     x1={cx + chartXOffset + 10}
                     y1={cy}

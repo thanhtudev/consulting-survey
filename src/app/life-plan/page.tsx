@@ -1,13 +1,13 @@
 "use client"
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
 import coordinatesData from "@/lib/life-plan-coordinator.json"
 import BottomModal from "@/components/BottomModal";
-import * as d3 from "d3";
 import LifePlanEventTag from "@/components/LifePlanEventTag";
 
 const LifePlan = () => {
+    const [draggedElement, setDraggedElement] = useState(null);
     // input user age
     let start = 30
     // Fix coordinatesData
@@ -15,10 +15,11 @@ const LifePlan = () => {
     // Line Data
     const pathData= scaledData.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
     // Array of node
-    const circleIndices = [];
+    const circleIndices: { index: number; cx: number; cy: number; age: number; c: number; }[] = [];
     let distance = 0;
 
     const leftNumber = [30, 35, 40, 35, 50, 60, 65, 70, 75, 80, 85, 90, 95, 99]
+    let showNumber = [31, 34, 35, 60, 65, 77, 98]
 
     const y = scaledData[scaledData.length -1][1];
     const n = 99 - start // n la so life plan
@@ -43,13 +44,45 @@ const LifePlan = () => {
     }
     const chartXOffset = 30;
 
-    const drag = (event: any) => {
-        console.log("down", event)
-    }
-    const drop = (event: any) => {
-        console.log("up", event)
-    }
+    const dragStart =(index) => (evt) => {
+        const data = circleIndices.find(i=> i.index = index)
+        console.log(data, evt)
+        const el = evt.target;
+        setDraggedElement(el);
+    };
 
+    const drag = (evt) => {
+        console.log("drag", draggedElement)
+        if (draggedElement) {
+            const { clientX, clientY } = evt.touches[0];
+            draggedElement.style.position = 'absolute';
+            draggedElement.style.left = clientX - draggedElement.clientWidth / 2 + 'px';
+            draggedElement.style.top = clientY - draggedElement.clientHeight / 2 + 'px';
+        }
+    };
+
+    const drop = () => {
+        return
+        // if (draggedElement) {
+        //     const dropbox = document.querySelector('#dropbox');
+        //     const drg = draggedElement.getBoundingClientRect();
+        //     const drp = dropbox.getBoundingClientRect();
+        //
+        //     if (
+        //         drp.top < drg.top &&
+        //         drp.left < drg.left &&
+        //         drp.bottom > drg.bottom &&
+        //         drp.right > drg.right
+        //     ) {
+        //         dropbox.appendChild(draggedElement);
+        //         draggedElement.style.position = '';
+        //         draggedElement.setAttribute('draggable', 'false');
+        //     }
+        //
+        //     setDraggedElement(null);
+        // }
+    };
+    console.log('circleIndices', circleIndices)
     return (
         <>
             <Header step={2}/>
@@ -57,14 +90,14 @@ const LifePlan = () => {
             <div className="life-plan-container">
                 <svg width="400" height="3500" xmlns="http://www.w3.org/2000/svg">
                     <path d={pathData} fill="none" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="5,5" transform={`translate(${chartXOffset}, 0)`}/>
-                    {circleIndices.map(({ index, cx, cy, age, c }) => (
-                        <g key={index}>
+                    {circleIndices.map(({ index, cx, cy, age}) => (
+                        <g key={index} onTouchStart={dragStart(index)} onTouchMove={drag} onTouchEnd={drop}>
                             {
                                 leftNumber.includes(age) && (
                                     <text x={15} y={cy} textAnchor="middle" dy="0.3em" fill="#C7C7CC" style={{ fontSize: '10px' }}>&#x2022; {age}</text>
                                 )
                             }
-                            {[31, 34, 35, 60, 65, 77, 98].includes(age) && (
+                            {showNumber.includes(age) && (
                                 <LifePlanEventTag index={index} cx={cx} cy={cy} chartXOffset={chartXOffset} age={age}/>
                             )
                             }
