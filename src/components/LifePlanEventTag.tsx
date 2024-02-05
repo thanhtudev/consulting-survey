@@ -1,10 +1,10 @@
 import React from "react";
 
-const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartXOffset: number; age: number}) => {
+const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartXOffset: number; age: number, enableDrag: boolean}) => {
     const {index, cx, cy, chartXOffset, age} = props
     return(
         <>
-            <g>
+            <g className={props.enableDrag ? "svg-touch" : ""}>
                 <circle
                     cx={cx + chartXOffset}
                     cy={cy}
