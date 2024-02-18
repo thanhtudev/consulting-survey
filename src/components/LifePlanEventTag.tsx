@@ -32,6 +32,14 @@ const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartX
                     rx="4"
                     ry="4"
                     fill="#FF6400"/>
+                <text
+                    x={cx + chartXOffset + 60} // Adjust the x position as needed
+                    y={cy} // Adjust the y position as needed
+                    textAnchor="middle"
+                    dy="0.3em"
+                    fill="#FFF"
+                    style={{fontSize: '10px'}}> index: {index}
+                </text>
             </g>
         </>
     )

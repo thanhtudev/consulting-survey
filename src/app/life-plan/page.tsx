@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
 import coordinatesData from "@/lib/life-plan-coordinator.json"
@@ -7,13 +7,14 @@ import BottomModal from "@/components/BottomModal";
 import LifePlanEventTag from "@/components/LifePlanEventTag";
 
 const LifePlan = () => {
-    useEffect(() => {
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        }, false);
-    }, []);
+    // useEffect(() => {
+    //     document.addEventListener('contextmenu', function(e) {
+    //         e.preventDefault();
+    //     }, false);
+    // }, []);
     let timeout: string | number | NodeJS.Timeout | undefined;
     const [draggedElement, setDraggedElement] = useState(null);
+    const [draggedData, setDraggedData] = useState(null);
     const [showNumber, setShowNumber] = useState([31, 34, 35, 60, 65, 77, 98]);
     // input user age
     let start = 30
@@ -51,24 +52,24 @@ const LifePlan = () => {
     const [circleIndicesData, updateCircleIndicesData] = useState(circleIndices)
     const chartXOffset = 30;
 
-    const dragStart =(index) => (evt) => {
+
+    const dragStart = (index) => (event: React.TouchEvent) => {
         timeout = window.setTimeout(function(){
-            circleIndices.map(i=>{
-                if ( i.index === index) {
-                    i.enableDrag = true
-                }
-            })
+            circleIndices[index].enableDrag = true
             updateCircleIndicesData(circleIndices)
-            const el = evt.target;
-            setDraggedElement(evt);
+            const dragData = circleIndicesData[index]
+            setDraggedData(dragData);
+            setDraggedElement(event);
+            console.log(event.touches[0])
         },500)
     };
 
-    const drag = (evt) => {
+    const drag = (event: React.TouchEvent) => {
         if (draggedElement) {
-            // const { clientX, clientY } = evt.touches[0];
-            console.log("current",draggedElement)
-            console.log("target",evt)
+            const { clientX, clientY } = event.touches[0];
+            const dragData = circleIndices[draggedData.c]
+            dragData.cy = clientY
+            updateCircleIndicesData(circleIndices)
         }
         return showNumber
     };
@@ -79,47 +80,29 @@ const LifePlan = () => {
                 i.enableDrag = false
         })
         const index = showNumber.indexOf(31);
-        if (index > -1) { // only splice array when item is found
-            showNumber.splice(index, 1); // 2nd parameter means remove one item only
-        }
-        showNumber.push(32)
+        // if (index > -1) { // only splice array when item is found
+        //     showNumber.splice(index, 1); // 2nd parameter means remove one item only
+        // }
+        //showNumber.push(32)
         updateCircleIndicesData(circleIndices)
         return
-        // if (draggedElement) {
-        //     const dropbox = document.querySelector('#dropbox');
-        //     const drg = draggedElement.getBoundingClientRect();
-        //     const drp = dropbox.getBoundingClientRect();
-        //
-        //     if (
-        //         drp.top < drg.top &&
-        //         drp.left < drg.left &&
-        //         drp.bottom > drg.bottom &&
-        //         drp.right > drg.right
-        //     ) {
-        //         dropbox.appendChild(draggedElement);
-        //         draggedElement.style.position = '';
-        //         draggedElement.setAttribute('draggable', 'false');
-        //     }
-        //
-        //     setDraggedElement(null);
-        // }
     };
     return (
         <>
             <Header step={2}/>
             <p>Đây là kế hoạch đề xuất cho cuộc đời bạn (Life plan)</p>
             <div className="life-plan-container" data-long-press-delay="500">
-                <svg width="400" height="3500">
+                <svg viewBox="0 0 400 3500">
                     <path d={pathData} fill="none" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="5,5" transform={`translate(${chartXOffset}, 0)`}/>
-                    {circleIndicesData.map(({ index, cx, cy, age, enableDrag}) => (
-                        <g key={index} onTouchStart={dragStart(index)} onTouchMove={drag} onTouchEnd={drop(index)}>
+                    {circleIndicesData.map(({ index, cx, cy, age, enableDrag, c}) => (
+                        <g key={index} onTouchStart={dragStart(c)} onTouchMove={drag} onTouchEnd={drop(index)}>
                             {
                                 leftNumber.includes(age) && (
                                     <text x={15} y={cy} textAnchor="middle" dy="0.3em" fill="#C7C7CC" style={{ fontSize: '10px' }}>&#x2022; {age}</text>
                                 )
                             }
                             {showNumber.includes(age) && (
-                                <LifePlanEventTag enableDrag={enableDrag} index={index} cx={cx} cy={cy} chartXOffset={chartXOffset} age={age}/>
+                                <LifePlanEventTag enableDrag={enableDrag} index={c} cx={cx} cy={cy} chartXOffset={chartXOffset} age={age}/>
                             )
                             }
                         </g>

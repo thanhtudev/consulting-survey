@@ -244,6 +244,9 @@ input[type="radio"] + label {
 .life-plan-container {
     overflow-y: hidden;
 }
+.life-plan-container.no-touch-action {
+    touch-action: none;
+}
 
 /* Bottom modal */
 .modal-button-container {
