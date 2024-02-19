@@ -7,12 +7,12 @@ import BottomModal from "@/components/BottomModal";
 import LifePlanEventTag from "@/components/LifePlanEventTag";
 
 const LifePlan = () => {
-    // useEffect(() => {
-    //     document.addEventListener('contextmenu', function(e) {
-    //         e.preventDefault();
-    //     }, false);
-    // }, []);
-    let timeout: string | number | NodeJS.Timeout | undefined;
+    useEffect(() => {
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        }, false);
+    }, []);
+
     const [draggedElement, setDraggedElement] = useState(null);
     const [draggedData, setDraggedData] = useState(null);
     const [showNumber, setShowNumber] = useState([31, 34, 35, 60, 65, 77, 98]);
@@ -23,7 +23,7 @@ const LifePlan = () => {
     // Line Data
     const pathData= scaledData.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
     // Array of node
-    const circleIndices: { index: number; cx: number; cy: number; age: number; c: number; enableDrag: boolean }[] = [];
+    const circleIndices: { index: number; cx: number; cy: number; age: number; c: number; cyLeft: number; enableDrag: boolean ; isShow: boolean }[] = [];
     let distance = 0;
 
     const leftNumber = [30, 35, 40, 35, 50, 60, 65, 70, 75, 80, 85, 90, 95, 99]
@@ -36,14 +36,14 @@ const LifePlan = () => {
         const [x1, y1] = scaledData[i];
         const [x2, y2] = scaledData[i + 1];
         const segmentDistance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-
         if (distance + segmentDistance >= d) {
             const remainingDistance = d - distance;
             const ratio = remainingDistance / segmentDistance;
             const cx = x1 + ratio * (x2 - x1);
             const cy = y1 + ratio * (y2 - y1);
+            const cyLeft = y1 + ratio * (y2 - y1);
             const age = start++
-            circleIndices.push({ index: i + 1, cx, cy, age, c: c++, enableDrag: false });
+            circleIndices.push({ index: i + 1, cx, cy, age, c: c++, cyLeft, enableDrag: false, isShow: showNumber.includes(age) });
             distance = 0;
         } else {
             distance += segmentDistance;
@@ -52,41 +52,70 @@ const LifePlan = () => {
     const [circleIndicesData, updateCircleIndicesData] = useState(circleIndices)
     const chartXOffset = 30;
 
+    // Function to handle the start of a drag operation
+    let timeout: string | number | NodeJS.Timeout | undefined;
+    const dragStart = (index: number) => (event: React.TouchEvent) => {
+        // Start a timeout to delay the drag operation
+        timeout = window.setTimeout(() => {
+            // Create a copy of circleIndices and update the dragged element's enableDrag property
+            const updatedCircleIndices = [...circleIndicesData];
+            updatedCircleIndices[index] = { ...updatedCircleIndices[index], enableDrag: true };
 
-    const dragStart = (index) => (event: React.TouchEvent) => {
-        timeout = window.setTimeout(function(){
-            circleIndices[index].enableDrag = true
-            updateCircleIndicesData(circleIndices)
-            const dragData = circleIndicesData[index]
+            // Update the circleIndices state with the new array
+            updateCircleIndicesData(updatedCircleIndices);
+
+            // Retrieve and set the data for the dragged element
+            const dragData = circleIndicesData[index];
             setDraggedData(dragData);
+
+            // Set the event as the dragged element
             setDraggedElement(event);
-            console.log(event.touches[0])
-        },500)
+        }, 500); // Delay of 500 milliseconds
     };
 
+
     const drag = (event: React.TouchEvent) => {
-        if (draggedElement) {
-            const { clientX, clientY } = event.touches[0];
-            const dragData = circleIndices[draggedData.c]
-            dragData.cy = clientY
-            updateCircleIndicesData(circleIndices)
+        if (!draggedElement || typeof draggedData?.c === 'undefined') return;
+
+        // Extract the clientY position of the touch event
+        const { clientY } = event.touches[0];
+
+        // Calculate the difference between the initial touch point and the current element's cy
+        const initialTouchPoint = draggedElement.touches[0].clientY;
+        const currentElementData = {...circleIndicesData[draggedData.c]};
+        const verticalDiff = initialTouchPoint - currentElementData.cy;
+
+        // Calculate the new cy position for the element being dragged
+        const newCy = clientY - verticalDiff;
+
+        // Find the target element based on the new cy position
+        const dataTargetIndex = circleIndices.findIndex(({ cy }) => newCy >= cy - 50 && newCy < cy);
+
+        if (dataTargetIndex !== -1) {
+            // Safely access the target element data
+            const dataTarget = circleIndices[dataTargetIndex];
+
+            // Update properties for the target element
+            dataTarget.isShow = true;
+            dataTarget.enableDrag = true;
+
+            // Hide the originally dragged element
+            circleIndices[draggedData.c].isShow = false;
+
+            // Trigger the update with the modified circleIndices array
+            updateCircleIndicesData([...circleIndices]);
         }
-        return showNumber
     };
 
     const drop = (index) => () => {
         clearTimeout(timeout);
-        circleIndices.map(i=> {
+        circleIndicesData.map(i=> {
                 i.enableDrag = false
         })
-        const index = showNumber.indexOf(31);
-        // if (index > -1) { // only splice array when item is found
-        //     showNumber.splice(index, 1); // 2nd parameter means remove one item only
-        // }
-        //showNumber.push(32)
-        updateCircleIndicesData(circleIndices)
-        return
-    };
+        updateCircleIndicesData(circleIndicesData)
+        setDraggedElement(null)
+        ;return
+}
     return (
         <>
             <Header step={2}/>
@@ -94,17 +123,14 @@ const LifePlan = () => {
             <div className="life-plan-container" data-long-press-delay="500">
                 <svg viewBox="0 0 400 3500">
                     <path d={pathData} fill="none" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="5,5" transform={`translate(${chartXOffset}, 0)`}/>
-                    {circleIndicesData.map(({ index, cx, cy, age, enableDrag, c}) => (
+                    {circleIndicesData.map(({ index, cx, cy, age, enableDrag, c, cyLeft, isShow}) => (
                         <g key={index} onTouchStart={dragStart(c)} onTouchMove={drag} onTouchEnd={drop(index)}>
                             {
                                 leftNumber.includes(age) && (
-                                    <text x={15} y={cy} textAnchor="middle" dy="0.3em" fill="#C7C7CC" style={{ fontSize: '10px' }}>&#x2022; {age}</text>
+                                    <text x={15} y={cyLeft} textAnchor="middle" dy="0.3em" fill="#C7C7CC" style={{ fontSize: '10px' }}>&#x2022; {age}</text>
                                 )
                             }
-                            {showNumber.includes(age) && (
-                                <LifePlanEventTag enableDrag={enableDrag} index={c} cx={cx} cy={cy} chartXOffset={chartXOffset} age={age}/>
-                            )
-                            }
+                            <LifePlanEventTag enableDrag={enableDrag} index={c} cx={cx} cy={cy} chartXOffset={chartXOffset} age={age} isShow={isShow}/>
                         </g>
                     ))}
                 </svg>
