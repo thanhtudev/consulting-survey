@@ -6,24 +6,26 @@ import coordinatesData from "@/lib/life-plan-coordinator.json"
 import BottomModal from "@/components/BottomModal";
 import LifePlanEventTag from "@/components/LifePlanEventTag";
 
+const scaledData = coordinatesData.map(([x, y]) => [x * 0.25, y * 0.2]);
+const pathData= scaledData.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
+
 const LifePlan = () => {
+    // State management grouped together
+    const [draggedElement, setDraggedElement] = useState(null);
+    const [draggedData, setDraggedData] = useState(null);
+    const [showNumber, setShowNumber] = useState([31, 34, 35, 60, 65, 77, 98]);
+
     useEffect(() => {
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         }, false);
     }, []);
 
-    const [draggedElement, setDraggedElement] = useState(null);
-    const [draggedData, setDraggedData] = useState(null);
-    const [showNumber, setShowNumber] = useState([31, 34, 35, 60, 65, 77, 98]);
+    // Process coordinates data and compute circle indices
     // input user age
     let start = 30
-    // Fix coordinatesData
-    const scaledData = coordinatesData.map(([x, y]) => [x * 0.25, y * 0.2]);
-    // Line Data
-    const pathData= scaledData.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
     // Array of node
-    const circleIndices: { index: number; cx: number; cy: number; age: number; c: number; cyLeft: number; enableDrag: boolean ; isShow: boolean }[] = [];
+    let circleIndices: { index: number; cx: number; cy: number; age: number; c: number; cyLeft: number; enableDrag: boolean ; isShow: boolean }[] = [];
     let distance = 0;
 
     const leftNumber = [30, 35, 40, 35, 50, 60, 65, 70, 75, 80, 85, 90, 95, 99]
@@ -109,13 +111,22 @@ const LifePlan = () => {
 
     const drop = (index) => () => {
         clearTimeout(timeout);
-        circleIndicesData.map(i=> {
-                i.enableDrag = false
-        })
-        updateCircleIndicesData(circleIndicesData)
-        setDraggedElement(null)
-        ;return
-}
+
+        // Immutably update each element in circleIndicesData to disable dragging
+        const updatedCircleIndicesData = circleIndicesData.map(i => ({
+            ...i,
+            enableDrag: false
+        }));
+
+        // Update the state with the new array
+        updateCircleIndicesData(updatedCircleIndicesData);
+
+        // Assuming circleIndices is a global or higher scope variable, update it here
+        circleIndices = updatedCircleIndicesData;
+
+        // Reset the dragged element state to null
+        setDraggedElement(null);
+    };
     return (
         <>
             <Header step={2}/>
