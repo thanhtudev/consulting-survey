@@ -22,7 +22,7 @@ const LifePlan = () => {
     }, []);
 
     // Process coordinates data and compute circle indices
-    // input user age
+    // Input user age
     let start = 30
     // Array of node
     let circleIndices: { index: number; cx: number; cy: number; age: number; c: number; cyLeft: number; enableDrag: boolean ; isShow: boolean }[] = [];
@@ -54,26 +54,34 @@ const LifePlan = () => {
     const [circleIndicesData, updateCircleIndicesData] = useState(circleIndices)
     const chartXOffset = 30;
 
+
+    // Function Drag and Drop
+    // Define the touchmove event listener function
+
     // Function to handle the start of a drag operation
     let timeout: string | number | NodeJS.Timeout | undefined;
     const dragStart = (index: number) => (event: React.TouchEvent) => {
-        // Start a timeout to delay the drag operation
-        timeout = window.setTimeout(() => {
-            // Create a copy of circleIndices and update the dragged element's enableDrag property
-            const updatedCircleIndices = [...circleIndicesData];
-            updatedCircleIndices[index] = { ...updatedCircleIndices[index], enableDrag: true };
+            // Start a timeout to delay the drag operation
+            timeout = window.setTimeout(() => {
+                // Create a copy of circleIndices and update the dragged element's enableDrag property
+                const updatedCircleIndices = [...circleIndicesData];
+                updatedCircleIndices[index] = { ...updatedCircleIndices[index], enableDrag: true };
 
-            // Update the circleIndices state with the new array
-            updateCircleIndicesData(updatedCircleIndices);
+                // Update the circleIndices state with the new array
+                updateCircleIndicesData(updatedCircleIndices);
 
-            // Retrieve and set the data for the dragged element
-            const dragData = circleIndicesData[index];
-            setDraggedData(dragData);
+                // Retrieve and set the data for the dragged element
+                const dragData = circleIndicesData[index];
+                setDraggedData(dragData);
 
-            // Set the event as the dragged element
-            setDraggedElement(event);
-        }, 500); // Delay of 500 milliseconds
-    };
+                // Set the event as the dragged element
+                setDraggedElement(event);
+
+                document.addEventListener('touchmove', lockScreen, { passive: false });
+                document.addEventListener('touchend', cancelLockScreen());
+                document.addEventListener('touchcancel', cancelLockScreen());
+            }, 500); // Delay of 500 milliseconds
+        }
 
 
     const drag = (event: React.TouchEvent) => {
@@ -102,16 +110,17 @@ const LifePlan = () => {
             dataTarget.enableDrag = true;
 
             // Hide the originally dragged element
-            circleIndices[draggedData.c].isShow = false;
+            if(draggedData.c !== dataTarget.c){
+                circleIndices[draggedData.c].isShow = false;
+            }
 
             // Trigger the update with the modified circleIndices array
             updateCircleIndicesData([...circleIndices]);
         }
     };
 
-    const drop = (index) => () => {
+    const drop = () => () => {
         clearTimeout(timeout);
-
         // Immutably update each element in circleIndicesData to disable dragging
         const updatedCircleIndicesData = circleIndicesData.map(i => ({
             ...i,
@@ -126,7 +135,18 @@ const LifePlan = () => {
 
         // Reset the dragged element state to null
         setDraggedElement(null);
+        cancelLockScreen()
     };
+
+    // Define the event listener function outside to ensure a consistent reference
+    const lockScreen = (e) => {
+        e.preventDefault();
+    };
+    const cancelLockScreen = () => () => {
+        document.removeEventListener('touchmove', lockScreen);
+        document.removeEventListener('touchend', cancelLockScreen());
+        document.removeEventListener('touchcancel', cancelLockScreen());
+    }
     return (
         <>
             <Header step={2}/>
