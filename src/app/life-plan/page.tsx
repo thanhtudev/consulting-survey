@@ -85,7 +85,7 @@ const LifePlan = () => {
                     if (e.isShow == true) {
                         return e.age
                     }
-                })
+                }).filter((age): age is number => age !== undefined);
                 setShowNumber(availableAge)
                 // Create a copy of circleIndices and update the dragged element's enableDrag property
                 const updatedCircleIndices = [...circleIndicesData];
@@ -101,10 +101,11 @@ const LifePlan = () => {
                 // Set the event as the dragged element
                 setDraggedElement(event);
 
-                document.addEventListener('touchmove', lockScreen, {passive: false});
-                document.addEventListener('touchend', cancelLockScreen());
-                document.addEventListener('touchcancel', cancelLockScreen());
-            }, 500); // Delay of 500 milliseconds
+
+            }, 500); // Delay of 300 milliseconds
+            document.addEventListener('touchmove', lockScreen, {passive: false});
+            document.addEventListener('touchend', cancelLockScreen());
+            document.addEventListener('touchcancel', cancelLockScreen());
         };
     }
 
@@ -133,6 +134,7 @@ const LifePlan = () => {
             // Update properties for the target element
             dataTarget.isShow = true;
             dataTarget.enableDrag = true;
+            console.log(dataTarget.age)
 
             // Hide the originally dragged element
             if (draggedData.c !== dataTarget.c) {
@@ -155,17 +157,18 @@ const LifePlan = () => {
         // Update the state with the new array
         updateCircleIndicesData(updatedCircleIndicesData);
 
-        // Assuming circleIndices is a global or higher scope variable, update it here
-        circleIndices = updatedCircleIndicesData;
-
         // Reset the dragged element state to null
         setDraggedElement(null);
         cancelLockScreen()
+        const data = circleIndicesData.filter(e => e.isShow === true)
+        console.log(data)
     };
 
     // Define the event listener function outside to ensure a consistent reference
     const lockScreen = (e) => {
-        e.preventDefault();
+        if (e.cancelable) {
+            e.preventDefault();
+        }
     };
     const cancelLockScreen = () => () => {
         document.removeEventListener('touchmove', lockScreen);
