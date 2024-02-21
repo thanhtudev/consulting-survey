@@ -1,7 +1,8 @@
 import React from "react";
 
-const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartXOffset: number; age: number, enableDrag: boolean, isShow: boolean }) => {
-    const {index, cx, cy, chartXOffset, age, enableDrag, isShow} = props;
+const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartXOffset: number; age: number, enableDrag: boolean, isShow: boolean, eventName: string }) => {
+    const {index, cx, cy, chartXOffset, age, enableDrag, isShow, eventName} = props;
+    console.log(eventName)
     // Define an ID for the glow effect filter
     const glowEffectId = `glow-effect-${index}`; // Unique ID to ensure multiple instances don't conflict
     return (
@@ -55,7 +56,8 @@ const LifePlanEventTag = (props: { index: number; cx: number; cy: number; chartX
                     textAnchor="middle"
                     dy="0.3em"
                     fill="#FFF"
-                    style={{fontSize: '10px'}}>Index: {index}
+                    style={{fontSize: '10px'}}>
+                    {eventName}
                 </text>
             </g>
         </>

@@ -2,24 +2,65 @@
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import Header from "@/layouts/Header";
-import province from "@/lib/province.json"
+import province from "@/lib/province.json";
+import Consultations from "@/services/consultations"
 
 const Consulting = () => {
     const router = useRouter()
     const [formData, setFormData] = useState({
         gender: 'MALE',
-        year: '',
+        year: 0,
         address: '',
     });
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        let formIsValid = true;
+        let errors = {};
+
+        // Example validation for year
+        if (!formData.year || formData.year < 1900 || formData.year > new Date().getFullYear()) {
+            errors.year = "Please select a valid year.";
+            formIsValid = false;
+        }
+
+        // Example validation for address
+        if (!formData.address) {
+            errors.address = "Please select your current location.";
+            formIsValid = false;
+        }
+
+        setErrors(errors);
+        return formIsValid;
+    };
     const handleChange = (e: { target: { name: string; value: string; }; }) => {
         const {name, value} = e.target;
         setFormData((prevData) => ({...prevData, [name]: value}));
+        // @ts-ignore
+        if (errors[name]) {
+            setErrors((prevErrors) => ({...prevErrors, [name]: undefined}));
+        }
     };
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form data submitted:', formData);
-        return router.push('life-plan')
+
+        if (!validateForm()) {
+            console.error("Validation failed.");
+            return;
+        }
+
+
+        const data = await Consultations.fetchLifePlanData(
+            formData,
+            function (response: any) {
+                const res = response.data.docs
+                localStorage.setItem('lifePlanData', JSON.stringify(res));
+                localStorage.setItem('formData', JSON.stringify(formData));
+                router.push('life-plan');
+            }, function (e) {
+                console.log(e)
+            })
     };
 
     return (
@@ -47,6 +88,7 @@ const Consulting = () => {
                         return <option key={year} value={year}>{year}</option>;
                     })}
                 </select>
+                {errors.year && <div className={"txt-red"}>{errors.year}</div>}
                 <label><h3>Nơi ở hiện tại</h3></label>
                 <select id="address" name="address" value={formData.address} onChange={handleChange}>
                     <option value="">Tỉnh/Thành</option>
@@ -56,6 +98,7 @@ const Consulting = () => {
                         })
                     }
                 </select>
+                {errors.address && <div className={"txt-red"}>{errors.address}</div>}
                 <button type={"submit"} className={'router-btn'} onClick={handleSubmit}>Tiếp tục</button>
             </form>
         </>
