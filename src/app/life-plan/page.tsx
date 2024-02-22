@@ -1,5 +1,5 @@
 "use client"
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
 import coordinatesData from "@/lib/life-plan-coordinator.json"
@@ -11,13 +11,13 @@ const scaledData = coordinatesData.map(([x, y]) => [x * 0.25, y * 0.2]);
 const pathData = scaledData.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
 
 const LifePlan = () => {
-    const lifePlanData = localStorage.getItem('lifePlanData')
+    const data = localStorage.getItem('lifePlanData')
     const formData = localStorage.getItem('formData')
     const router = useRouter()
-    if (!lifePlanData) router.push('consulting')
+    if (!data) router.push('consulting')
     // @ts-ignore
-    const lifePlan = JSON.parse(lifePlanData)
-    const listAge = lifePlan.map(lp => {
+    const lifePlanData = JSON.parse(data)
+    const listAge = lifePlanData.map(lp => {
         return lp.age
     })
     // @ts-ignore
@@ -33,7 +33,7 @@ const LifePlan = () => {
     const [draggedElement, setDraggedElement] = useState(null);
     const [draggedData, setDraggedData] = useState(null);
     const [showNumber, setShowNumber] = useState(listAge);
-
+    const [lifePlan, setLifePlan] = useState(lifePlanData);
     useEffect(() => {
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
@@ -52,7 +52,8 @@ const LifePlan = () => {
         cyLeft: number;
         enableDrag: boolean;
         isShow: boolean;
-        plan: {}
+        extra: number;
+        plan: {};
     }[] = [];
     let distance = 0;
 
@@ -73,9 +74,25 @@ const LifePlan = () => {
             const cy = y1 + ratio * (y2 - y1);
             const cyLeft = y1 + ratio * (y2 - y1);
             const age = start++
-            const plan = lifePlan.find(lp => {
+            const plan = lifePlan.filter(lp => {
                 return lp.age === age
             })
+            if (plan.length > 0) {
+                for (let j = 1; j < plan.length; j++) {
+                    circleIndices.push({
+                        index: j * 110,
+                        cx: cx,
+                        cy,
+                        age,
+                        c: c++,
+                        cyLeft,
+                        enableDrag: false,
+                        plan: plan[j] || {},
+                        isShow: showNumber.includes(age),
+                        extra: j,
+                    });
+                }
+            }
             circleIndices.push({
                 index: i + 1,
                 cx,
@@ -84,8 +101,9 @@ const LifePlan = () => {
                 c: c++,
                 cyLeft,
                 enableDrag: false,
-                plan: plan?.name.vi|| '',
-                isShow: showNumber.includes(age)
+                plan: plan[0] || {},
+                isShow: showNumber.includes(age),
+                extra: 0
             });
             distance = 0;
         } else {
@@ -93,6 +111,7 @@ const LifePlan = () => {
         }
     }
     const [circleIndicesData, updateCircleIndicesData] = useState(circleIndices)
+    console.log(circleIndicesData)
     const chartXOffset = 30;
 
 
@@ -109,6 +128,13 @@ const LifePlan = () => {
                     }
                 }).filter((age): age is number => age !== undefined);
                 setShowNumber(availableAge)
+                const availableLifePlan = circleIndicesData.filter(e => Object.keys(e.plan).length !== 0).map(e=> {
+                    return e.plan = {
+                        ...e.plan,
+                        age: e.age
+                    }
+                })
+                setLifePlan(availableLifePlan)
                 // Create a copy of circleIndices and update the dragged element's enableDrag property
                 const updatedCircleIndices = [...circleIndicesData];
                 updatedCircleIndices[index] = {...updatedCircleIndices[index], enableDrag: true};
@@ -150,7 +176,6 @@ const LifePlan = () => {
 
         // Find the target element based on the new cy position
         const dataTargetIndex = circleIndices.findIndex(({cy}) => newCy >= cy - 50 && newCy < cy);
-
         if (dataTargetIndex !== -1) {
             // Safely access the target element data
             const dataTarget = circleIndices[dataTargetIndex];
@@ -158,12 +183,12 @@ const LifePlan = () => {
             // Update properties for the target element
             dataTarget.isShow = true;
             dataTarget.enableDrag = true;
+            dataTarget.plan = draggedData.plan
 
             // Hide the originally dragged element
             if (draggedData.c !== dataTarget.c) {
                 circleIndices[draggedData.c].isShow = false;
             }
-            const data = circleIndices.filter(e => e.isShow == true)
             // Trigger the update with the modified circleIndices array
             updateCircleIndicesData([...circleIndices]);
         }
@@ -183,7 +208,6 @@ const LifePlan = () => {
         // Reset the dragged element state to null
         setDraggedElement(null);
         cancelLockScreen()
-        const data = circleIndicesData.filter(e => e.isShow === true)
     };
 
     // Define the event listener function outside to ensure a consistent reference
@@ -205,16 +229,15 @@ const LifePlan = () => {
                 <svg viewBox="0 0 400 3500">
                     <path d={pathData} fill="none" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="5,5"
                           transform={`translate(${chartXOffset}, 0)`}/>
-                    {circleIndicesData.map(({index, cx, cy, age, enableDrag, c, cyLeft, isShow, plan}) => (
-                        <g key={index} onTouchStart={dragStart(c)} onTouchMove={drag} onTouchEnd={drop()}>
+                    {circleIndicesData.map((plan) => (
+                        <g key={plan.index} onTouchStart={dragStart(plan.c)} onTouchMove={drag} onTouchEnd={drop()}>
                             {
-                                leftNumber.includes(age) && (
-                                    <text x={15} y={cyLeft} textAnchor="middle" dy="0.3em" fill="#C7C7CC"
-                                          style={{fontSize: '10px'}}>&#x2022; {age}</text>
+                                leftNumber.includes(plan.age) && (
+                                    <text x={15} y={plan.cyLeft} textAnchor="middle" dy="0.3em" fill="#C7C7CC"
+                                          style={{fontSize: '10px'}}>&#x2022; {plan.age}</text>
                                 )
                             }
-                            <LifePlanEventTag enableDrag={enableDrag} index={c} cx={cx} cy={cy}
-                                              chartXOffset={chartXOffset} age={age} isShow={isShow} eventName={plan}/>
+                            <LifePlanEventTag plan={plan} chartXOffset={chartXOffset}/>
                         </g>
                     ))}
                 </svg>
