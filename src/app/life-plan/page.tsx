@@ -32,6 +32,7 @@ const LifePlan = () => {
     // State management grouped together
     const [draggedElement, setDraggedElement] = useState(null);
     const [draggedData, setDraggedData] = useState(null);
+    const [draggedDataGroup, setDraggedDataGroup] = useState(null);
     const [showNumber, setShowNumber] = useState(listAge);
     const [lifePlan, setLifePlan] = useState(lifePlanData);
     useEffect(() => {
@@ -57,8 +58,6 @@ const LifePlan = () => {
     }[] = [];
     let distance = 0;
 
-
-
     const y = scaledData[scaledData.length - 1][1];
     const n = 99 - start // n la so life plan
     const d = y / n - 5  // -5 la ban kinh cua hinh tron
@@ -78,6 +77,7 @@ const LifePlan = () => {
                 return lp.age === age
             })
             if (plan.length > 0) {
+                plan.sort((a, b) => a.expectedCost - b.expectedCost);
                 for (let j = 1; j < plan.length; j++) {
                     circleIndices.push({
                         index: j * 110,
@@ -111,9 +111,7 @@ const LifePlan = () => {
         }
     }
     const [circleIndicesData, updateCircleIndicesData] = useState(circleIndices)
-    console.log(circleIndicesData)
     const chartXOffset = 30;
-
 
     // Function Drag and Drop
     // Function to handle the start of a drag operation
@@ -131,7 +129,7 @@ const LifePlan = () => {
                 const availableLifePlan = circleIndicesData.filter(e => Object.keys(e.plan).length !== 0).map(e=> {
                     return e.plan = {
                         ...e.plan,
-                        age: e.age
+                        age: e.age,
                     }
                 })
                 setLifePlan(availableLifePlan)
@@ -147,6 +145,10 @@ const LifePlan = () => {
                 // @ts-ignore
                 setDraggedData(dragData);
 
+
+                const dataDraggedGroup = circleIndicesData.filter(d => d.age === dragData.age)
+                // @ts-ignore
+                setDraggedDataGroup(dataDraggedGroup)
                 // Set the event as the dragged element
                 // @ts-ignore
                 setDraggedElement(event);
@@ -179,16 +181,41 @@ const LifePlan = () => {
         if (dataTargetIndex !== -1) {
             // Safely access the target element data
             const dataTarget = circleIndices[dataTargetIndex];
+            const dataTargetGroup = circleIndices.filter(d => d.age === dataTarget.age)
+
+            // Hide the originally dragged element
+            if (draggedData.c !== dataTarget.c) {
+                if(draggedDataGroup) {
+                    draggedDataGroup.forEach(dg => {
+                        if (dg.c !== draggedData.c && dg.extra >= 1) {
+                            console.log(circleIndices[dg.c])
+                            circleIndices[dg.c].extra = dg.extra - 1
+                        }
+                    })
+                    setDraggedDataGroup(null)
+                }
+                if (dataTarget.isShow) {
+                    circleIndices.push({
+                        index: circleIndicesData[circleIndicesData.length -1].index + 1,
+                        cx: dataTarget.cx,
+                        cy: dataTarget.cy,
+                        age: dataTarget.age,
+                        c: circleIndicesData.length - 1,
+                        cyLeft: dataTarget.cyLeft,
+                        enableDrag: false,
+                        plan: dataTarget.plan,
+                        isShow: dataTarget.isShow,
+                        extra: 0
+                    })
+                    dataTarget.extra = dataTargetGroup.length
+                }
+                circleIndices[draggedData.c].isShow = false;
+            }
 
             // Update properties for the target element
             dataTarget.isShow = true;
             dataTarget.enableDrag = true;
             dataTarget.plan = draggedData.plan
-
-            // Hide the originally dragged element
-            if (draggedData.c !== dataTarget.c) {
-                circleIndices[draggedData.c].isShow = false;
-            }
             // Trigger the update with the modified circleIndices array
             updateCircleIndicesData([...circleIndices]);
         }
@@ -229,8 +256,8 @@ const LifePlan = () => {
                 <svg viewBox="0 0 400 3500">
                     <path d={pathData} fill="none" stroke="#C7C7CC" strokeWidth="1" strokeDasharray="5,5"
                           transform={`translate(${chartXOffset}, 0)`}/>
-                    {circleIndicesData.map((plan) => (
-                        <g key={plan.index} onTouchStart={dragStart(plan.c)} onTouchMove={drag} onTouchEnd={drop()}>
+                    {circleIndicesData.map((plan, index) => (
+                        <g key={index} onTouchStart={dragStart(plan.c)} onTouchMove={drag} onTouchEnd={drop()}>
                             {
                                 leftNumber.includes(plan.age) && (
                                     <text x={15} y={plan.cyLeft} textAnchor="middle" dy="0.3em" fill="#C7C7CC"

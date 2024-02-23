@@ -58,7 +58,7 @@ class LifePlanEventTag extends React.Component<{ plan: any, chartXOffset: any }>
                         dy="0.3em"
                         fill="#FFF"
                         style={{fontSize: '10px'}}>
-                        {plan.plan?.name?.vi || ''}
+                        {plan.plan?.name?.vi || ''} {plan.c}
                     </text>
                 </g>
             </>
