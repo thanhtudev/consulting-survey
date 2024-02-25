@@ -32,7 +32,6 @@ const LifePlan = () => {
     // State management grouped together
     const [draggedElement, setDraggedElement] = useState(null);
     const [draggedData, setDraggedData] = useState(null);
-    const [draggedDataGroup, setDraggedDataGroup] = useState(null);
     const [showNumber, setShowNumber] = useState(listAge);
     const [lifePlan, setLifePlan] = useState(lifePlanData);
     useEffect(() => {
@@ -144,11 +143,6 @@ const LifePlan = () => {
                 const dragData = circleIndicesData[index];
                 // @ts-ignore
                 setDraggedData(dragData);
-
-
-                const dataDraggedGroup = circleIndicesData.filter(d => d.age === dragData.age)
-                // @ts-ignore
-                setDraggedDataGroup(dataDraggedGroup)
                 // Set the event as the dragged element
                 // @ts-ignore
                 setDraggedElement(event);
@@ -185,15 +179,6 @@ const LifePlan = () => {
 
             // Hide the originally dragged element
             if (draggedData.c !== dataTarget.c) {
-                if(draggedDataGroup) {
-                    draggedDataGroup.forEach(dg => {
-                        if (dg.c !== draggedData.c && dg.extra >= 1) {
-                            console.log(circleIndices[dg.c])
-                            circleIndices[dg.c].extra = dg.extra - 1
-                        }
-                    })
-                    setDraggedDataGroup(null)
-                }
                 if (dataTarget.isShow) {
                     circleIndices.push({
                         index: circleIndicesData[circleIndicesData.length -1].index + 1,
@@ -217,6 +202,12 @@ const LifePlan = () => {
             dataTarget.enableDrag = true;
             dataTarget.plan = draggedData.plan
             // Trigger the update with the modified circleIndices array
+            const dataGroup = circleIndices.filter(dg => dg.age === draggedData.age)
+            if (dataGroup.length > 1) {
+                for (const dg of dataGroup) {
+                    if (dg.extra > 0) circleIndices[dg.c].extra = dg.extra - 1
+                }
+            }
             updateCircleIndicesData([...circleIndices]);
         }
     };
