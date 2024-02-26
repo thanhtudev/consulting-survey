@@ -155,7 +155,7 @@ const LifePlan = () => {
                 setDraggedElement(event);
 
 
-            }, 500); // Delay of 300 milliseconds
+            }, 500); // Delay of 500 milliseconds
             document.addEventListener('touchmove', lockScreen, {passive: false});
             document.addEventListener('touchend', cancelLockScreen());
             document.addEventListener('touchcancel', cancelLockScreen());
@@ -227,7 +227,9 @@ const LifePlan = () => {
                     dataTarget.extra = dataTargetGroup.length
                 }
                 else if (dataTargetGroup.length > 1) {
-                    //console.log(dataTargetGroup)
+                    const targetC = dataTargetGroup.reduce((prev, current) => (prev.c > current.c) ? prev : current);
+                    console.log(targetC.c)
+
                 }
             }
 
@@ -235,7 +237,6 @@ const LifePlan = () => {
             dataTarget.isShow = true;
             dataTarget.enableDrag = true;
             dataTarget.plan = {...draggedData.plan, sequence: Date.now()}
-            // Trigger the update with the modified circleIndices array
             updateCircleIndicesData([...circleIndices]);
         }
     };
