@@ -16,10 +16,14 @@ const LifePlan = () => {
     const router = useRouter()
     if (!data) router.push('consulting')
     // @ts-ignore
-    const lifePlanData = JSON.parse(data)
+    let lifePlanData = JSON.parse(data)
     const listAge = lifePlanData.map(lp => {
         return lp.age
     })
+    lifePlanData = lifePlanData.map((item, index) => ({
+        ...item,
+        sequence: Date.now() + index
+    }));
     // @ts-ignore
     const info =  JSON.parse(formData)
     const year = new Date().getFullYear()
@@ -76,7 +80,7 @@ const LifePlan = () => {
                 return lp.age === age
             })
             if (plan.length > 0) {
-                plan.sort((a, b) => a.expectedCost - b.expectedCost);
+                plan.sort((a, b) => a.sequence - b.sequence);
                 for (let j = 1; j < plan.length; j++) {
                     circleIndices.push({
                         index: j * 110,
@@ -119,6 +123,9 @@ const LifePlan = () => {
         return (event: React.TouchEvent) => {
             // Start a timeout to delay the drag operation
             timeout = window.setTimeout(() => {
+                if (circleIndicesData.length > circleIndices.length) {
+                    circleIndices.push(circleIndicesData[circleIndicesData.length - 1])
+                }
                 const availableAge = circleIndicesData.map(e => {
                     if (e.isShow) {
                         return e.age
@@ -157,8 +164,7 @@ const LifePlan = () => {
 
 
     const drag = (event: React.TouchEvent) => {
-        if (!draggedElement || typeof draggedData?.c === 'undefined') return;
-
+        if (!draggedElement || typeof draggedData?.c === 'undefined' || timeout) return;
         // Extract the clientY position of the touch event
         const {clientY} = event.touches[0];
 
@@ -175,39 +181,61 @@ const LifePlan = () => {
         if (dataTargetIndex !== -1) {
             // Safely access the target element data
             const dataTarget = circleIndices[dataTargetIndex];
-            const dataTargetGroup = circleIndices.filter(d => d.age === dataTarget.age)
-
             // Hide the originally dragged element
             if (draggedData.c !== dataTarget.c) {
-                if (dataTarget.isShow) {
-                    circleIndices.push({
+                // Filter circleIndices based on age and non-empty plan
+                const matchingDataGroup = circleIndices.filter(item => item.age === draggedData.age && Object.keys(item.plan).length > 0);
+                if (matchingDataGroup.length > 1) {
+                    if (draggedData.extra > 0) {
+                        circleIndices.forEach(item => {
+                            if (item.c > draggedData.c) {
+                                item.c -= 1;
+                            }
+                        });
+                        circleIndices.splice(draggedData.c, 1);
+                    } else {
+                        matchingDataGroup.forEach(item => {
+                            item.extra -= 1;
+                        });
+                        circleIndices[draggedData.c].isShow = false;
+                        circleIndices[draggedData.c].plan = {};
+                    }
+                } else {
+                    circleIndices[draggedData.c].isShow = false;
+                }
+                const dataTargetGroup = circleIndices.filter(d => d.age === dataTarget.age && d.extra >= 0)
+                if (dataTarget.isShow && dataTargetGroup.length <= 1) {
+                    const targetC = dataTarget.c
+                    for (const data of circleIndices) {
+                        if (data.c > targetC) {
+                            circleIndices[data.c].c = data.c + 1
+                        }
+                    }
+                    const newCircle = {
                         index: circleIndicesData[circleIndicesData.length -1].index + 1,
                         cx: dataTarget.cx,
                         cy: dataTarget.cy,
                         age: dataTarget.age,
-                        c: circleIndicesData.length - 1,
+                        c: targetC + 1,
                         cyLeft: dataTarget.cyLeft,
                         enableDrag: false,
                         plan: dataTarget.plan,
                         isShow: dataTarget.isShow,
                         extra: 0
-                    })
+                    }
+                    circleIndices.splice(targetC + 1,0, newCircle)
                     dataTarget.extra = dataTargetGroup.length
                 }
-                circleIndices[draggedData.c].isShow = false;
+                else if (dataTargetGroup.length > 1) {
+                    //console.log(dataTargetGroup)
+                }
             }
 
             // Update properties for the target element
             dataTarget.isShow = true;
             dataTarget.enableDrag = true;
-            dataTarget.plan = draggedData.plan
+            dataTarget.plan = {...draggedData.plan, sequence: Date.now()}
             // Trigger the update with the modified circleIndices array
-            const dataGroup = circleIndices.filter(dg => dg.age === draggedData.age)
-            if (dataGroup.length > 1) {
-                for (const dg of dataGroup) {
-                    if (dg.extra > 0) circleIndices[dg.c].extra = dg.extra - 1
-                }
-            }
             updateCircleIndicesData([...circleIndices]);
         }
     };
@@ -219,7 +247,15 @@ const LifePlan = () => {
             ...i,
             enableDrag: false
         }));
-
+        const extraIndex = updatedCircleIndicesData.findIndex(d => d.extra < 0)
+        if (extraIndex !== -1) {
+            updatedCircleIndicesData.splice(extraIndex,1)
+            updatedCircleIndicesData.forEach(item => {
+                if (item.c > extraIndex) {
+                    item.c -= 1;
+                }
+            });
+        }
         // Update the state with the new array
         updateCircleIndicesData(updatedCircleIndicesData);
 
