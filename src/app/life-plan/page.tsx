@@ -43,9 +43,6 @@ const LifePlan = () => {
             e.preventDefault();
         }, false);
     }, []);
-
-    // Process coordinates data and compute circle indices
-
     // Array of node
     let circleIndices: {
         index: number;
@@ -132,7 +129,7 @@ const LifePlan = () => {
                     }
                 }).filter((age): age is number => age !== undefined);
                 setShowNumber(availableAge)
-                const availableLifePlan = circleIndicesData.filter(e => Object.keys(e.plan).length !== 0).map(e=> {
+                const availableLifePlan = circleIndicesData.filter(e => Object.keys(e.plan).length !== 0 && e.isShow).map(e=> {
                     return e.plan = {
                         ...e.plan,
                         age: e.age,
@@ -167,12 +164,10 @@ const LifePlan = () => {
         if (!draggedElement || typeof draggedData?.c === 'undefined' || timeout) return;
         // Extract the clientY position of the touch event
         const {clientY} = event.touches[0];
-
         // Calculate the difference between the initial touch point and the current element's cy
         const initialTouchPoint = draggedElement.touches[0].clientY;
         const currentElementData = {...circleIndicesData[draggedData.c]};
         const verticalDiff = initialTouchPoint - currentElementData.cy;
-
         // Calculate the new cy position for the element being dragged
         const newCy = clientY - verticalDiff;
 
@@ -227,9 +222,37 @@ const LifePlan = () => {
                     dataTarget.extra = dataTargetGroup.length
                 }
                 else if (dataTargetGroup.length > 1) {
-                    const targetC = dataTargetGroup.reduce((prev, current) => (prev.c > current.c) ? prev : current);
-                    console.log(targetC.c)
-
+                    const target = dataTargetGroup.reduce((prev, current) => (prev.c > current.c) ? prev : current);
+                    for (const data of circleIndices) {
+                        if (data.c > target.c) {
+                            circleIndices[data.c].c = data.c + 1
+                        }
+                    }
+                    const newCircle = {
+                        index: circleIndicesData[circleIndicesData.length -1].index + 1,
+                        cx: target.cx,
+                        cy: target.cy,
+                        age: target.age,
+                        c: target.c + 1,
+                        cyLeft: target.cyLeft,
+                        enableDrag: false,
+                        plan: {...draggedData.plan, sequence: Date.now()},
+                        isShow: target.isShow,
+                        extra: 0
+                    }
+                    circleIndices.splice(target.c + 1,0, newCircle)
+                    dataTargetGroup.forEach((item, index) => {
+                        item.extra += 1
+                    })
+                    const newDataGroup = circleIndices.filter(d => d.age === dataTarget.age && d.extra >= 0).sort((a,b) => a.c -b.c)
+                    const lastPlanData = {...newDataGroup[newDataGroup.length - 1]};
+                    // Shift data from the end of the list to the beginning, starting from the second-to-last plan
+                    for (let i = newDataGroup.length - 1; i > 0; i--) {
+                        newDataGroup[i].plan = newDataGroup[i - 1].plan;
+                    }
+                    newDataGroup[0].plan = {...lastPlanData.plan, sequence: Date.now()};
+                    newDataGroup[0].enableDrag = true;
+                    return updateCircleIndicesData([...circleIndices]);
                 }
             }
 
@@ -259,7 +282,6 @@ const LifePlan = () => {
         }
         // Update the state with the new array
         updateCircleIndicesData(updatedCircleIndicesData);
-
         // Reset the dragged element state to null
         setDraggedElement(null);
         cancelLockScreen()
