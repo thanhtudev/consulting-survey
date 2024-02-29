@@ -1,8 +1,50 @@
+"use client"
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
-import React from "react";
+import React, {useState} from "react";
+import Chart from 'react-apexcharts';
 
 const Report = () => {
+    const [options, setOptions] = useState({
+        chart: {
+            id: 'apexchart-example',
+            toolbar: {
+                show: false
+            },
+        },
+        xaxis: {
+            categories: [21,'', 31,'',41,'', 51, '',61,'', 71, '','', '']
+        },
+        dataLabels: {
+            enabled: false
+        },
+        fill: {
+            colors: ['#FF6400']
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 2,
+            }
+        },
+    });
+
+    const [series, setSeries] = useState([
+        {
+            name: 'expenses',
+            type: 'column',
+            data: [40, 35, 50, 30, 40, 35, 50, 49, 60, 10, 1, 1, 1]
+        },
+       {
+            name: 'TEAM B',
+            type: 'area',
+            data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
+        }, {
+            name: 'TEAM C',
+            type: 'line',
+            data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
+        },
+    ]);
+
     return (
         <>
             <Header step={3}/>
@@ -18,6 +60,7 @@ const Report = () => {
                     <div className="header-item txt-red">Trường hợp lý tưởng khi không tham gia bảo hiểm và không gặp phải bất kỳ bệnh hiểm nghèo/tai nạn.</div>
                 </div>
                 <div className="chart-container">
+                    <Chart options={options} series={series} type="bar"/>
                 </div>
 
                 <div className="info-box-container">
