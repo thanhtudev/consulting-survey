@@ -378,21 +378,124 @@ th {
 .text-right {
     text-align: right;
 }
-#dropbox{
-    height:100px;
-    width:100px;
-    border:1px solid #000;
-    border-radius:10px;
-    float:left;
-    margin:10px;
+/* Report Page */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-#dragbox{
-    height:50px;
-    width:50px;
-    border:1px solid #000;
-    border-radius:10px;
-    float:left;
-    margin:10px;
-    background:#31D2B1;
+.header-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 10px 0;
 }
+
+.header-item {
+    text-align: center;
+    flex-grow: 1;
+    padding: 12px 8px 12px 8px;
+    font-weight: 400;
+    font-size: 12px;
+}
+.header-item.active {
+    font-weight: 700;
+    color: #FF6400;
+    border-bottom: 1px solid;
+}
+
+.chart-container {
+    width: 100%;
+    height: 300px; /* Adjust as necessary */
+    margin: 20px;
+    background-color: #EFEFEF;
+    /* Placeholder for chart library styling */
+}
+
+.footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    background-color: #EFEFEF;
+}
+
+.info-box-container {
+    display: flex;
+    width: 95%;
+    height: 250px; /* Adjust the height as needed */
+    background-color: #F2F2F7;
+    padding: 12px;
+}
+.left-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-basis: 50%; /* Set the basis for the left column */
+    height: 100%;
+}
+.right-column {
+    flex-basis: 50%; /* Set the basis for the left column */
+    height: 100%;
+}
+.box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #fff;
+    margin: 5px;
+    box-sizing: border-box; /* Makes sure the padding and border are included in the total width and height */
+    border-radius: 4px;
+    text-align: center;
+}
+.box-content-top {
+    margin-bottom: 10px;
+    font-weight: 300;
+    font-size: 14px;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+}
+.box-content-mid {
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 18px;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
+}
+.box-content-bottom {
+    font-weight: 400;
+    font-size: 10px;
+    padding: 5px;
+}
+.small-box {
+    height: calc(50% - 10px);
+    background: hsla(24, 100%, 50%, 1);
+}
+.small-box.light {
+    background: hsla(20, 91%, 70%, 1);
+}
+.large-box {
+    flex-grow: 2; /* Allows the large box to grow and fill the remaining space */
+    height: calc(100% - 10px); /* Adjusting for the margin */
+    background-color: #007AFF;
+}
+.footer-box-container {
+    padding: 12px;
+    width: 95%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.footer-box-title {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.footer-box-content {
+    padding: 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 300;
+    border-radius: 6px;
+    border: 1px solid #E5E5EA
+}
+

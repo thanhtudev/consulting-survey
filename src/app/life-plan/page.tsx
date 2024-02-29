@@ -120,9 +120,7 @@ const LifePlan = () => {
         return (event: React.TouchEvent) => {
             // Start a timeout to delay the drag operation
             timeout = window.setTimeout(() => {
-                if (circleIndicesData.length > circleIndices.length) {
-                    circleIndices.push(circleIndicesData[circleIndicesData.length - 1])
-                }
+                circleIndices = [...circleIndicesData]
                 const availableAge = circleIndicesData.map(e => {
                     if (e.isShow) {
                         return e.age
@@ -142,7 +140,6 @@ const LifePlan = () => {
 
                 // Update the circleIndices state with the new array
                 updateCircleIndicesData(updatedCircleIndices);
-
                 // Retrieve and set the data for the dragged element
                 const dragData = circleIndicesData[index];
                 // @ts-ignore
@@ -150,7 +147,6 @@ const LifePlan = () => {
                 // Set the event as the dragged element
                 // @ts-ignore
                 setDraggedElement(event);
-
 
             }, 500); // Delay of 500 milliseconds
             document.addEventListener('touchmove', lockScreen, {passive: false});
@@ -250,7 +246,7 @@ const LifePlan = () => {
                     for (let i = newDataGroup.length - 1; i > 0; i--) {
                         newDataGroup[i].plan = newDataGroup[i - 1].plan;
                     }
-                    newDataGroup[0].plan = {...lastPlanData.plan, sequence: Date.now()};
+                    newDataGroup[0].plan = {...lastPlanData.plan};
                     newDataGroup[0].enableDrag = true;
                     return updateCircleIndicesData([...circleIndices]);
                 }
