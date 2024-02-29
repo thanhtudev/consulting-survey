@@ -17,9 +17,10 @@ const Report = () => {
         dataLabels: {
             enabled: false
         },
+        colors: ['#007AFF','#FF6400'],
         stroke: {
             width: [0, 1, 2],
-            curve: 'smooth'
+            curve: 'smooth',
         },
         plotOptions: {
             bar: {
