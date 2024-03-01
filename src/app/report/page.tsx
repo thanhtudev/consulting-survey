@@ -22,7 +22,7 @@ const Report = () => {
         },
         colors: ['#FF6400','#32E685','#007AFF'],
         stroke: {
-            width: [0, 1, 4],
+            width: [0, 3, 2],
             curve: 'smooth',
         },
         plotOptions: {
@@ -86,8 +86,27 @@ const Report = () => {
                 </div>
                 <div className="chart-container">
                     <Chart options={options} series={series} type="bar"/>
+                    <ul className="age-list">
+                        <li>
+                            10
+                        </li>
+                        <li>
+                            20
+                        </li>
+                        <li>
+                            30
+                        </li>
+                        <li>
+                            40
+                        </li>
+                        <li>
+                            50
+                        </li>
+                        <li>
+                            60
+                        </li>
+                    </ul>
                 </div>
-
                 <div className="info-box-container">
                     <div className="left-column">
                         <div className="box small-box">

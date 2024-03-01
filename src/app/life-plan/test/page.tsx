@@ -80,7 +80,6 @@ const Report = () => {
                 <div className="chart-container">
                     <Chart options={options} series={series} type="bar"/>
                 </div>
-
                 <div className="info-box-container">
                     <div className="left-column">
                         <div className="box small-box">
