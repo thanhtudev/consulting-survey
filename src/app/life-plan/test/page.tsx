@@ -8,8 +8,8 @@ const Report = () => {
     const [options, setOptions] = useState( {
         chart: {
             height: 350,
-            type: 'line',
-            stacked: false,
+            type: 'bar',
+            stacked: true,
             toolbar: {
                 show: false
             }
@@ -17,57 +17,50 @@ const Report = () => {
         dataLabels: {
             enabled: false
         },
-        colors: ['#007AFF','#FF6400'],
+        legend: {
+            show: false
+        },
+        colors: ['#FF6400','#32E685','#007AFF'],
         stroke: {
-            width: [0, 1, 2],
+            width: [0, 1, 4],
             curve: 'smooth',
         },
         plotOptions: {
             bar: {
                 borderRadius: 2,
-                colors: {
-                    ranges: [{
-                        from: 0,
-                        to: 100,
-                        color: '#FF6400'
-                    }],
-                }
             }
         },
         fill: {
-            opacity: [0.85, 0.25, 1],
+            opacity: [1, 0.25, 1],
             gradient: {
+                shadeIntensity: 1,
                 inverseColors: false,
-                shade: 'light',
-                type: "vertical",
-                opacityFrom: 0.85,
-                opacityTo: 0.55,
-                stops: [0, 100, 100, 100]
+                opacityFrom: 0.45,
+                opacityTo: 0.05,
+                stops: [20, 100, 100, 100]
             },
         },
         labels: [1,2,3,4,5,6,7,8,9,10,11,12],
         markers: {
             size: 0
         },
-        xaxis: {
-        },
-        yaxis: {
-        },
     });
 
-    const [series, setSeries] = useState([{
-        name: 'A',
-        type: 'column',
-        data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
-    }, {
-        name: 'B',
-        type: 'area',
-        data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
-    }, {
-        name: 'C',
-        type: 'line',
-        data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
-    }
+    const [series, setSeries] = useState([
+        {
+            name: 'A',
+            type: 'column',
+            data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
+        },
+        {
+            name: 'B',
+            type: 'area',
+            data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
+        }, {
+            name: 'C',
+            type: 'line',
+            data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
+        },
     ]);
 
     return (
