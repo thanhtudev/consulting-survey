@@ -276,6 +276,7 @@ const LifePlan = () => {
                 }
             });
         }
+        localStorage.setItem('lifePlanData', JSON.stringify(lifePlanData));
         // Update the state with the new array
         updateCircleIndicesData(updatedCircleIndicesData);
         // Reset the dragged element state to null

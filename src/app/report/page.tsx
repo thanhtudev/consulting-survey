@@ -4,14 +4,56 @@ import RouterButton from "@/components/RouterButton";
 import React, {useState} from "react";
 import Chart from 'react-apexcharts';
 import {useRouter} from "next/navigation";
+import formatCurrency from "@/ultils/currency";
+import convertAgeToGroup from "@/ultils/convertAgeToGroup";
 
 const Report = () => {
     const reportData = localStorage.getItem('reportData')
+    const lifePlanData = localStorage.getItem('lifePlanData')
     const router = useRouter()
     if (!reportData) router.push('consulting')
     // @ts-ignore
     const data = JSON.parse(reportData)
-    console.log(data)
+    // @ts-ignore
+    const lifePlan = JSON.parse(lifePlanData)
+    const planDeath = lifePlan.find(lp => lp.key === 'DEATH'
+    )
+
+    let ageList = []
+    let livingCostList = []
+    let currentAge = data.age
+    let planList = []
+    let incomesList = []
+    let totalLivingCost = 0
+    let totalPlanCost = 0
+
+    for (let i = 0; i < 6; i++) {
+        const age = data.age + 10 * i
+        ageList.push(age)
+    }
+    for (let i = 0; i < 12 && currentAge <= planDeath.age; i++) {
+        const livingCost  = data.livingCost * 5
+        totalLivingCost += livingCost
+        livingCostList.push(livingCost)
+        const plan = lifePlan.filter((lp) => {
+            if (i === 12) {
+                return lp.age >= currentAge && lp.age <= planDeath.age;
+            }
+            return lp.age >= currentAge && lp.age < currentAge + 5;
+        });
+         const planCost = plan.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue.expectedCost;
+        }, 0);
+        totalPlanCost += planCost
+        planList.push(planCost)
+        const incomeRatio = data.incomes.find(d => d.ageGroup === convertAgeToGroup(currentAge))
+        incomesList.push(incomeRatio.ratio)
+        currentAge += 5;
+    }
+    const totalIncome = totalPlanCost + totalLivingCost
+
+    incomesList = incomesList.map(icome => icome * totalIncome)
+    console.log(incomesList)
     const [options, setOptions] = useState( {
         chart: {
             height: 500,
@@ -58,28 +100,39 @@ const Report = () => {
             axisTicks: {
                 show: false,
             },
+        },
+        yaxis: {
+            labels: {
+                show: true,
+                align: 'right',
+                minWidth: 0,
+                maxWidth: 30,
+                offsetX: -15,
+                offsetY: 0,
+                rotate: 0,
+            },
         }
     });
 
     const [series, setSeries] = useState([
         {
-            name: 'A',
+            name: 'light orange',
             type: 'column',
-            data: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+            data: livingCostList
         },
         {
-            name: 'B',
+            name: 'orange',
             type: 'column',
-            data: [23, 11, 22, 27, 13, 22, 37, 21, 44]
+            data: planList
         },
         {
-            name: 'C',
+            name: 'green',
             type: 'area',
-            data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
+            data: []
         }, {
-            name: 'D',
+            name: 'blue',
             type: 'line',
-            data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
+            data: incomesList
         },
     ]);
     return (
@@ -99,40 +152,32 @@ const Report = () => {
                 <div className="chart-container">
                     <Chart options={options} series={series} type="bar"/>
                     <ul className="age-list">
-                        <li>
-                            1
-                        </li>
-                        <li>
-                            3
-                        </li>
-                        <li>
-                            5
-                        </li>
-                        <li>
-                            7
-                        </li>
-                        <li>
-                            9
-                        </li>
+                        {
+                            ageList.map((age) => {
+                                return <li>
+                                    {age}
+                                </li>
+                            })
+                        }
                     </ul>
                 </div>
                 <div className="info-box-container">
                     <div className="left-column">
                         <div className="box small-box">
                             <div className="box-content-top">Chi phí kế hoạch</div>
-                            <div className="box-content-mid">4 tỷ</div>
+                            <div className="box-content-mid">{formatCurrency(totalPlanCost)}</div>
                             <div className="box-content-bottom">Tổng chi phí cần thiết để hoàn thành tất cả kế hoạch cuộc đời</div>
                         </div>
                         <div className="box small-box light">
                             <div className="box-content-top">Chi phí sinh hoạt</div>
-                            <div className="box-content-mid">2 tỷ</div>
+                            <div className="box-content-mid">{formatCurrency(totalLivingCost)}</div>
                             <div className="box-content-bottom">Tổng chi phí cần thiết để duy trì sinh hoạt cuộc sống cơ bản dựa trên thống kê</div>
                         </div>
                     </div>
                     <div className="right-column">
                         <div className="box large-box">
                             <div className="box-content-top">Tổng thu nhập cần có</div>
-                            <div className="box-content-mid">6 tỷ</div>
+                            <div className="box-content-mid">{formatCurrency(totalIncome)}</div>
                             <div className="box-content-bottom">Tổng thu nhập cần có để đảm bảo cho cả “Chi phí sinh hoạt” và “Chi phí kế hoạch”</div>
                         </div>
                     </div>
