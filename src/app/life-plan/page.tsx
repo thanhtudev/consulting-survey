@@ -276,7 +276,6 @@ const LifePlan = () => {
                 }
             });
         }
-        localStorage.setItem('lifePlanData', JSON.stringify(lifePlanData));
         // Update the state with the new array
         updateCircleIndicesData(updatedCircleIndicesData);
         // Reset the dragged element state to null
@@ -296,7 +295,14 @@ const LifePlan = () => {
         document.removeEventListener('touchcancel', cancelLockScreen);
     }
     const getReport = async () => {
-        const plan = lifePlan.find(lp => lp.key === 'DEATH'
+        const availableLifePlan = circleIndicesData.filter(e => Object.keys(e.plan).length !== 0 && e.isShow).map(e=> {
+            return e.plan = {
+                ...e.plan,
+                age: e.age,
+            }
+        })
+        localStorage.setItem('lifePlanData', JSON.stringify(availableLifePlan));
+        const plan = availableLifePlan.find(lp => lp.key === 'DEATH'
         )
         const report = await Consultations.fetchReportData(
             {
