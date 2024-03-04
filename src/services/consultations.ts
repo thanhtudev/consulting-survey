@@ -23,5 +23,24 @@ export default {
         const dataResponse = await response.json();
         success(dataResponse)
         return
+    },
+    async fetchReportData(data: any, success: any, error: any){
+        let token = await fetchToken();
+        if (isTokenExpired(token)) {
+            token = await fetchToken(true);
+        }
+        const response = await fetch(  `${url}/report?cityCode=${data.address}&dob=${data.year}&gender=${data.gender}&ageDeath=${data.ageDeath}`, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            error('API request failed');
+        }
+        const dataResponse = await response.json();
+        success(dataResponse)
+        return
     }
 }

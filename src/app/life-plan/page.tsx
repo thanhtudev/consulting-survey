@@ -1,11 +1,11 @@
 "use client"
 import React, {useEffect, useState, useRef} from 'react';
 import Header from "@/layouts/Header";
-import RouterButton from "@/components/RouterButton";
 import coordinatesData from "@/lib/life-plan-coordinator.json"
 import BottomModal from "@/components/BottomModal";
 import LifePlanEventTag from "@/components/LifePlanEventTag";
 import {useRouter} from "next/navigation";
+import Consultations from "@/services/consultations";
 
 const scaledData = coordinatesData.map(([x, y]) => [x * 0.25, y * 0.2]);
 const pathData = scaledData.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
@@ -294,6 +294,22 @@ const LifePlan = () => {
         document.removeEventListener('touchend', cancelLockScreen);
         document.removeEventListener('touchcancel', cancelLockScreen);
     }
+    const getReport = async () => {
+        const plan = lifePlan.find(lp => lp.key === 'DEATH'
+        )
+        const report = await Consultations.fetchReportData(
+            {
+                ...info,
+                ageDeath: plan.age
+            },
+            function (response: any) {
+                const res = response.data.doc
+                localStorage.setItem('reportData', JSON.stringify(res));
+                router.push('report');
+            }, function (e) {
+                console.log(e)
+            })
+    }
     return (
         <>
             <Header step={2}/>
@@ -316,7 +332,7 @@ const LifePlan = () => {
                 </svg>
             </div>
             <BottomModal/>
-            <RouterButton url={'report'} text={'Tiếp tục'}/>
+            <button className={'router-btn'} onClick={getReport}>Tiếp tục</button>
         </>
     );
 }

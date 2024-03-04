@@ -3,11 +3,18 @@ import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
 import React, {useState} from "react";
 import Chart from 'react-apexcharts';
+import {useRouter} from "next/navigation";
 
 const Report = () => {
+    const reportData = localStorage.getItem('reportData')
+    const router = useRouter()
+    if (!reportData) router.push('consulting')
+    // @ts-ignore
+    const data = JSON.parse(reportData)
+    console.log(data)
     const [options, setOptions] = useState( {
         chart: {
-            height: 350,
+            height: 500,
             type: 'bar',
             stacked: true,
             toolbar: {
@@ -20,18 +27,18 @@ const Report = () => {
         legend: {
             show: false
         },
-        colors: ['#FF6400','#32E685','#007AFF'],
+        colors: ['#F89B6DFF','#FF6400','#32E685','#007AFF'],
         stroke: {
-            width: [0, 3, 2],
+            width: [0, 0, 3, 2],
             curve: 'smooth',
         },
         plotOptions: {
             bar: {
-                borderRadius: 2,
+                borderRadius: 3,
             }
         },
         fill: {
-            opacity: [1, 0.25, 1],
+            opacity: [1, 1, 0.25, 1],
             gradient: {
                 shadeIntensity: 1,
                 inverseColors: false,
@@ -58,14 +65,19 @@ const Report = () => {
         {
             name: 'A',
             type: 'column',
-            data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
+            data: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
         },
         {
             name: 'B',
+            type: 'column',
+            data: [23, 11, 22, 27, 13, 22, 37, 21, 44]
+        },
+        {
+            name: 'C',
             type: 'area',
             data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
         }, {
-            name: 'C',
+            name: 'D',
             type: 'line',
             data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
         },
@@ -88,22 +100,19 @@ const Report = () => {
                     <Chart options={options} series={series} type="bar"/>
                     <ul className="age-list">
                         <li>
-                            10
+                            1
                         </li>
                         <li>
-                            20
+                            3
                         </li>
                         <li>
-                            30
+                            5
                         </li>
                         <li>
-                            40
+                            7
                         </li>
                         <li>
-                            50
-                        </li>
-                        <li>
-                            60
+                            9
                         </li>
                     </ul>
                 </div>
