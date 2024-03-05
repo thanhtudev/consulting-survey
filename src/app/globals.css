@@ -539,6 +539,11 @@ th {
     background: #D1D1D6;
     border-radius: 50%;
 }
+
+.age-list li.active:before {
+    background: linear-gradient(to bottom, #F22F2F 0%, #721A88 100%);
+}
+
 @media only screen and (min-width: 320px) {
     .age-list {
         margin: -4vw 0 0 14.7vw;

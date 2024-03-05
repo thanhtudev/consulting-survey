@@ -1,13 +1,15 @@
 "use client"
 import Header from "@/layouts/Header";
 import RouterButton from "@/components/RouterButton";
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import Chart from 'react-apexcharts';
 import {useRouter} from "next/navigation";
 import formatCurrency from "@/ultils/currency";
 import convertAgeToGroup from "@/ultils/convertAgeToGroup";
 
 const Report = () => {
+    const [activeTab, setActiveTab] = useState('NONE_INSURANCE');
+    const [activeAge, setActiveAge] = useState(-1);
     const reportData = localStorage.getItem('reportData')
     const lifePlanData = localStorage.getItem('lifePlanData')
     const router = useRouter()
@@ -16,28 +18,30 @@ const Report = () => {
     const data = JSON.parse(reportData)
     // @ts-ignore
     const lifePlan = JSON.parse(lifePlanData)
-    const planDeath = lifePlan.find(lp => lp.key === 'DEATH'
-    )
+    const planDeath = lifePlan.find(lp => lp.key === 'DEATH')
+    let [ageDeath, setAgeDeath] = useState(planDeath.age);
 
-    let ageList = []
-    let livingCostList = []
+    let ageList: any[] = []
+    let livingCostList: number[] = []
     let currentAge = data.age
-    let planList = []
-    let incomesList = []
+    let planList: number[] = []
+    let incomesList: any[] = []
     let totalLivingCost = 0
     let totalPlanCost = 0
-
+    let maxValue = 0
     for (let i = 0; i < 6; i++) {
         const age = data.age + 10 * i
-        ageList.push(age)
+        if (age <= planDeath.age) {
+            ageList.push(age)
+        }
     }
-    for (let i = 0; i < 12 && currentAge <= planDeath.age; i++) {
+    for (let i = 0; i < 12 && currentAge <= ageDeath; i++) {
         const livingCost  = data.livingCost * 5
         totalLivingCost += livingCost
         livingCostList.push(livingCost)
         const plan = lifePlan.filter((lp) => {
             if (i === 12) {
-                return lp.age >= currentAge && lp.age <= planDeath.age;
+                return lp.age >= currentAge && lp.age <= ageDeath;
             }
             return lp.age >= currentAge && lp.age < currentAge + 5;
         });
@@ -45,7 +49,12 @@ const Report = () => {
             return accumulator + currentValue.expectedCost;
         }, 0);
         totalPlanCost += planCost
-        planList.push(planCost)
+        if (planCost > livingCost) {
+            planList.push(planCost - livingCost)
+        } else {
+            planList.push(planCost)
+        }
+        if (planList[i] + livingCost > maxValue) maxValue = planList[i] + livingCost
         const incomeRatio = data.incomes.find(d => d.ageGroup === convertAgeToGroup(currentAge))
         incomesList.push(incomeRatio.ratio)
         currentAge += 5;
@@ -53,14 +62,21 @@ const Report = () => {
     const totalIncome = totalPlanCost + totalLivingCost
 
     incomesList = incomesList.map(icome => icome * totalIncome)
-    console.log(incomesList)
     const [options, setOptions] = useState( {
         chart: {
-            height: 500,
             type: 'bar',
             stacked: true,
             toolbar: {
                 show: false
+            },
+            animations: {
+                enabled: true,
+                easing: 'linear',
+                speed: 1000,
+                animateGradually: {
+                    enabled: true,
+                    delay: 500
+                },
             }
         },
         dataLabels: {
@@ -68,6 +84,10 @@ const Report = () => {
         },
         legend: {
             show: false
+        },
+        grid: {
+            borderColor: "#BDBDBD",
+            strokeDashArray: 3,
         },
         colors: ['#F89B6DFF','#FF6400','#32E685','#007AFF'],
         stroke: {
@@ -105,16 +125,24 @@ const Report = () => {
             labels: {
                 show: true,
                 align: 'right',
-                minWidth: 0,
                 maxWidth: 30,
-                offsetX: -15,
-                offsetY: 0,
-                rotate: 0,
+                stepSize: 500000000,
+                formatter: function(value) {
+                    const val : number = Math.abs(value)
+                    let str: string = ''
+                    if (val >= 1000000000) {
+                        str = (val / 1000000000).toFixed(1).replace('.0', '') + ' tỷ'
+                    } else if (val >= 1000000) {
+                        str = (val / 1000000).toFixed(0) + ' tr'
+                    }
+                    return str
+                }
             },
-        }
+            tickAmount: Number((maxValue / 500000000).toFixed(0)) + 2,
+        },
     });
 
-    const [series, setSeries] = useState([
+    let seriesData = [
         {
             name: 'light orange',
             type: 'column',
@@ -134,16 +162,31 @@ const Report = () => {
             type: 'line',
             data: incomesList
         },
-    ]);
+    ]
+
+    const [series, setSeries] = useState(seriesData);
+    useEffect(() => {
+        setSeries(seriesData)
+    }, [ageDeath]);
+    const handleListAge =  (index: number) => {
+       if (activeAge === index) {
+           setActiveAge(-1)
+           setAgeDeath(planDeath.age)
+       } else  {
+           setActiveAge(index)
+           setAgeDeath(ageList[index])
+       }
+    }
+
     return (
         <>
             <Header step={3}/>
             <div className="header-container">
-                <div className="header-item active">Không bảo hiểm</div>
-                <div className="header-item">Bảo hiểm Đầu tư</div>
-                <div className="header-item">Bảo hiểm Học vấn</div>
-                <div className="header-item">BH bệnh hiểm nghèo</div>
-                <div className="header-item">Bảo hiểm tử kỳ</div>
+                <div onClick={()=> {setActiveTab('NONE_INSURANCE')}} className={activeTab === 'NONE_INSURANCE'? 'header-item active':'header-item'}>Không bảo hiểm</div>
+                <div onClick={()=> {setActiveTab('INVESTMENT')}} className={activeTab === 'INVESTMENT'? 'header-item active':'header-item'}>Bảo hiểm Đầu tư</div>
+                <div onClick={()=> {setActiveTab('EDUCATE')}} className={activeTab === 'EDUCATE'? 'header-item active':'header-item'}>Bảo hiểm Học vấn</div>
+                <div onClick={()=> {setActiveTab('CI')}} className={activeTab === 'CI'? 'header-item active':'header-item'}>BH bệnh hiểm nghèo</div>
+                <div onClick={()=> {setActiveTab('DEATH')}} className={activeTab === 'DEATH'? 'header-item active':'header-item'}>Bảo hiểm tử kỳ</div>
             </div>
             <div className="dashboard">
                 <div className="header-container">
@@ -153,8 +196,8 @@ const Report = () => {
                     <Chart options={options} series={series} type="bar"/>
                     <ul className="age-list">
                         {
-                            ageList.map((age) => {
-                                return <li>
+                            ageList.map((age, index) => {
+                                return <li key={index} onClick={()=> {handleListAge(index)}} className={activeAge === index ? 'active': ''}>
                                     {age}
                                 </li>
                             })
