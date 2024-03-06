@@ -415,6 +415,18 @@ th {
     height: 250px; /* Adjust the height as needed */
     background-color: #F2F2F7;
     padding: 12px;
+    margin-top: 10px;
+}
+.info-box-container.second {
+    height: auto;
+    margin-top: 10px;
+} {
+    display: flex;
+    width: 95%;
+    height: 250px; /* Adjust the height as needed */
+    background-color: #F2F2F7;
+    padding: 12px;
+    margin-top: 10px;
 }
 .left-column {
     display: flex;
@@ -461,6 +473,11 @@ th {
 }
 .small-box.light {
     background: hsla(20, 91%, 70%, 1);
+}
+.small-box.gradient {
+    background: linear-gradient(353.45deg, #F22F2F -3.2%, #721A88 98.43%);
+    padding-top: 10px;
+
 }
 .large-box {
     flex-grow: 2; /* Allows the large box to grow and fill the remaining space */

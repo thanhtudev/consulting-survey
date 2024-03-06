@@ -10,6 +10,7 @@ import convertAgeToGroup from "@/ultils/convertAgeToGroup";
 const Report = () => {
     const [activeTab, setActiveTab] = useState('NONE_INSURANCE');
     const [activeAge, setActiveAge] = useState(-1);
+    const [finalMoney, setFinalMoney] = useState(-1);
     const reportData = localStorage.getItem('reportData')
     const lifePlanData = localStorage.getItem('lifePlanData')
     const router = useRouter()
@@ -23,46 +24,55 @@ const Report = () => {
 
     let ageList: any[] = []
     let livingCostList: number[] = []
-    let currentAge = data.age
+    let currentAge: number = data.age
     let planList: number[] = []
     let incomesList: any[] = []
     let totalLivingCost = 0
     let totalPlanCost = 0
+    let riskValue = 0
     let maxValue = 0
+    let riskList = Array(12).fill(0);
+    if (activeAge >= 0) {
+        riskValue = data?.expenses[activeAge * 2]?.treatmentCost || 0
+        riskList[activeAge * 2] = riskValue
+    }
     for (let i = 0; i < 6; i++) {
         const age = data.age + 10 * i
         if (age <= planDeath.age) {
             ageList.push(age)
         }
     }
-    for (let i = 0; i < 12 && currentAge <= ageDeath; i++) {
-        const livingCost  = data.livingCost * 5
-        totalLivingCost += livingCost
-        livingCostList.push(livingCost)
+    for (let i = 0; i < 12 ; i++) {
         const plan = lifePlan.filter((lp) => {
             if (i === 12) {
                 return lp.age >= currentAge && lp.age <= ageDeath;
             }
             return lp.age >= currentAge && lp.age < currentAge + 5;
         });
-         const planCost = plan.reduce((accumulator, currentValue) => {
+        const livingCost  = data.livingCost * 5
+        livingCostList.push(livingCost)
+        let ratio = 0
+        const planCost = plan.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.expectedCost;
         }, 0);
-        totalPlanCost += planCost
+        if (currentAge <= ageDeath) {
+            totalLivingCost += livingCost
+            const incomeRatio = data.incomes.find(d => d.ageGroup === convertAgeToGroup(currentAge))
+            ratio = incomeRatio.ratio
+            totalPlanCost += planCost
+        }
         if (planCost > livingCost) {
             planList.push(planCost - livingCost)
         } else {
             planList.push(planCost)
         }
         if (planList[i] + livingCost > maxValue) maxValue = planList[i] + livingCost
-        const incomeRatio = data.incomes.find(d => d.ageGroup === convertAgeToGroup(currentAge))
-        incomesList.push(incomeRatio.ratio)
+        incomesList.push(ratio)
         currentAge += 5;
     }
     const totalIncome = totalPlanCost + totalLivingCost
-
     incomesList = incomesList.map(icome => icome * totalIncome)
-    const [options, setOptions] = useState( {
+    let option = {
         chart: {
             type: 'bar',
             stacked: true,
@@ -72,7 +82,7 @@ const Report = () => {
             animations: {
                 enabled: true,
                 easing: 'linear',
-                speed: 1000,
+                speed: 500,
                 animateGradually: {
                     enabled: true,
                     delay: 500
@@ -89,10 +99,9 @@ const Report = () => {
             borderColor: "#BDBDBD",
             strokeDashArray: 3,
         },
-        colors: ['#F89B6DFF','#FF6400','#32E685','#007AFF'],
         stroke: {
-            width: [0, 0, 3, 2],
-            curve: 'smooth',
+            width: [0, 0, 0, 3, 2],
+            curve: 'monotoneCubic',
         },
         plotOptions: {
             bar: {
@@ -100,14 +109,23 @@ const Report = () => {
             }
         },
         fill: {
-            opacity: [1, 1, 0.25, 1],
+            opacity: [1, 1, 1, 0.25, 1],
+            type: ["solid","solid","gradient","solid","solid"],
             gradient: {
-                shadeIntensity: 1,
-                inverseColors: false,
-                opacityFrom: 0.45,
-                opacityTo: 0.05,
-                stops: [20, 100, 100, 100]
-            },
+                type: "vertical",
+                colorStops: [
+                    {
+                        offset: 0,
+                        color: '#721A88',
+                        opacity: 1
+                    },
+                    {
+                        offset: 100,
+                        color: '#F22F2F',
+                        opacity: 1
+                    }
+                ]
+            }
         },
         labels: [1,2,3,4,5,6,7,8,9,10,11,12],
         markers: {
@@ -140,33 +158,56 @@ const Report = () => {
             },
             tickAmount: Number((maxValue / 500000000).toFixed(0)) + 2,
         },
-    });
+    }
+    const [options, setOptions] = useState(option);
 
     let seriesData = [
         {
             name: 'light orange',
             type: 'column',
-            data: livingCostList
+            data: livingCostList,
+            color: function({dataPointIndex}) {
+                if (dataPointIndex > activeAge * 2 - 1  && activeAge >= 0) {
+                    return '#C7C7CC'
+                } else {
+                    return '#F89B6DFF'
+                }
+            },
         },
         {
             name: 'orange',
             type: 'column',
-            data: planList
+            data: planList,
+            color: function({dataPointIndex}) {
+                if (dataPointIndex > activeAge * 2 - 1 && activeAge >= 0) {
+                    return '#AEAEB2'
+                } else {
+                    return '#FF0000'
+                }
+            },
+        },
+        {
+            name: 'red',
+            type: 'column',
+            data: riskList,
         },
         {
             name: 'green',
             type: 'area',
-            data: []
+            data: [],
+            color: '#32E685'
         }, {
             name: 'blue',
             type: 'line',
-            data: incomesList
+            data: incomesList,
+            color: '#007AFF',
         },
     ]
 
     const [series, setSeries] = useState(seriesData);
     useEffect(() => {
         setSeries(seriesData)
+        setFinalMoney(totalIncome - totalPlanCost - totalLivingCost - riskValue)
     }, [ageDeath]);
     const handleListAge =  (index: number) => {
        if (activeAge === index) {
@@ -225,14 +266,22 @@ const Report = () => {
                         </div>
                     </div>
                 </div>
-
+                {riskList[activeAge * 2] > 0 && (
+                    <div className="info-box-container second">
+                        <div className="left-column">
+                            <div className="box small-box gradient">
+                                <div className="box-content-top">Chi phí điều trị bệnh ung thư (2 năm)</div>
+                                <div className="box-content-mid">{formatCurrency(riskValue)}</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className="footer-box-container">
-                    <div className="footer-box-title">Thiếu <span className={"txt-red"}>0</span> Tỷ</div>
+                    <div className="footer-box-title">Thiếu <span className={"txt-red"}>{formatCurrency(finalMoney)}</span></div>
                     <div className="footer-box-content">
                         Tổng thu nhập cần thiết để hoàn thành kế hoạch là 6 tỷ, không có dự phòng rủi ro
                     </div>
                 </div>
-
             </div>
             <RouterButton url={'report'} text={'Hoàn thành'}/>
         </>
