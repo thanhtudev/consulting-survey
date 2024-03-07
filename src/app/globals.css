@@ -417,16 +417,12 @@ th {
     padding: 12px;
     margin-top: 10px;
 }
-.info-box-container.second {
+.second {
     height: auto;
     margin-top: 10px;
-} {
-    display: flex;
-    width: 95%;
-    height: 250px; /* Adjust the height as needed */
-    background-color: #F2F2F7;
-    padding: 12px;
-    margin-top: 10px;
+}
+.txt-left {
+    text-align: left;
 }
 .left-column {
     display: flex;

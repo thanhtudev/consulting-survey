@@ -4,13 +4,13 @@ import RouterButton from "@/components/RouterButton";
 import React, {useState, useEffect} from "react";
 import Chart from 'react-apexcharts';
 import {useRouter} from "next/navigation";
-import formatCurrency from "@/ultils/currency";
+import {formatCurrency, formatFinalCurrency} from "@/ultils/currency";
 import convertAgeToGroup from "@/ultils/convertAgeToGroup";
 
 const Report = () => {
     const [activeTab, setActiveTab] = useState('NONE_INSURANCE');
     const [activeAge, setActiveAge] = useState(-1);
-    const [finalMoney, setFinalMoney] = useState(-1);
+    const [finalMoneyTxt, setFinalMoneyTxt] = useState('');
     const reportData = localStorage.getItem('reportData')
     const lifePlanData = localStorage.getItem('lifePlanData')
     const router = useRouter()
@@ -207,7 +207,9 @@ const Report = () => {
     const [series, setSeries] = useState(seriesData);
     useEffect(() => {
         setSeries(seriesData)
-        setFinalMoney(totalIncome - totalPlanCost - totalLivingCost - riskValue)
+        const finalMoney = formatFinalCurrency(totalIncome - totalPlanCost - totalLivingCost - riskValue)
+        // @ts-ignore
+        setFinalMoneyTxt(finalMoney)
     }, [ageDeath]);
     const handleListAge =  (index: number) => {
        if (activeAge === index) {
@@ -217,6 +219,43 @@ const Report = () => {
            setActiveAge(index)
            setAgeDeath(ageList[index])
        }
+    }
+    const extraBoxContainer = () => {
+        if (riskList[activeAge * 2] > 0) {
+            return (
+                <div className="info-box-container second">
+                    <div className="left-column">
+                        <div className="box small-box gradient">
+                            <div className="box-content-top">Chi phí điều trị bệnh ung thư (2 năm)</div>
+                            <div className="box-content-mid">{formatCurrency(riskValue)}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        } else {
+            return ('');
+        }
+    }
+    const bottomContainer = () => {
+        const finalMoney = Math.abs(totalIncome - totalPlanCost - totalLivingCost - riskValue)
+        const totalIncomeTxt =  (totalIncome / 1000000000).toFixed(1).replace('.0', '')
+        const riskTxt = (finalMoney / 1000000000).toFixed(1).replace('.0', '')
+        let txt = `Tổng thu nhập cần thiết để hoàn thành kế hoạch là <b> ${totalIncomeTxt}</b> tỷ, không có dự phòng rủi ro`
+        if (riskList[activeAge * 2] > 0) {
+            txt =  `Khi gặp rủi ro, thu nhập giảm còn  <b>${totalIncomeTxt}</b> tỷ, thiếu <b>${riskTxt}</b> tỷ chi phí điều trị`
+        }
+        let txtSecond = `Đề xuất mua bảo hiểm để dự phòng chi phí điều trị và tiếp tục các kế hoạch cuộc đời trong trường hợp không may phát sinh rủi ro.`
+        return (
+            <div className="footer-box-container">
+                <div className="footer-box-title">{finalMoneyTxt.prefix} <span className={"txt-red"}>{finalMoneyTxt.str}</span> {finalMoneyTxt.suffix}</div>
+                <div className="footer-box-content txt-left">
+                    <div dangerouslySetInnerHTML={{ __html: txt }}/>
+                    {txtSecond.length > 0 && (
+                        <div className={'second txt-red'} dangerouslySetInnerHTML={{ __html: txtSecond }}/>
+                    )}
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -266,22 +305,8 @@ const Report = () => {
                         </div>
                     </div>
                 </div>
-                {riskList[activeAge * 2] > 0 && (
-                    <div className="info-box-container second">
-                        <div className="left-column">
-                            <div className="box small-box gradient">
-                                <div className="box-content-top">Chi phí điều trị bệnh ung thư (2 năm)</div>
-                                <div className="box-content-mid">{formatCurrency(riskValue)}</div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                <div className="footer-box-container">
-                    <div className="footer-box-title">Thiếu <span className={"txt-red"}>{formatCurrency(finalMoney)}</span></div>
-                    <div className="footer-box-content">
-                        Tổng thu nhập cần thiết để hoàn thành kế hoạch là 6 tỷ, không có dự phòng rủi ro
-                    </div>
-                </div>
+                {extraBoxContainer()}
+                {bottomContainer()}
             </div>
             <RouterButton url={'report'} text={'Hoàn thành'}/>
         </>
