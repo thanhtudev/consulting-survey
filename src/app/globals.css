@@ -37,7 +37,7 @@ ol {
     margin-bottom: 20px;
 }
 
-li {
+.custom-circle-list li {
     padding-bottom: 20px;
     padding-left: 20px;
     position: relative;
@@ -585,4 +585,25 @@ th {
     .age-list li {
         margin-right: 13.5vw;
     }
+}
+.custom-tooltip {
+    background: #8E8E93;
+    color: white;
+    padding: 10px 10px 0px 10px;
+    position: absolute;
+    left: calc(50% - 100px);
+    border-radius: 8px;
+    width: auto;
+    z-index: 1;
+    font-size: 14px;
+    font-weight: 300;
+}
+.custom-tooltip ul {
+    padding-left: 0;
+    margin-top: 0;
+    list-style-type: none;
+}
+.custom-tooltip li:before {
+    content: "- ";
+    text-indent: -5px;
 }

@@ -11,6 +11,8 @@ const Report = () => {
     const [activeTab, setActiveTab] = useState('NONE_INSURANCE');
     const [activeAge, setActiveAge] = useState(-1);
     const [finalMoneyTxt, setFinalMoneyTxt] = useState('');
+    const [isVisibleTooltip, setIsVisibleTooltip] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
     const reportData = localStorage.getItem('reportData')
     const lifePlanData = localStorage.getItem('lifePlanData')
     const router = useRouter()
@@ -22,6 +24,7 @@ const Report = () => {
     const planDeath = lifePlan.find(lp => lp.key === 'DEATH')
     let [ageDeath, setAgeDeath] = useState(planDeath.age);
 
+    let tooltipTimeout: string | number | NodeJS.Timeout | undefined
     let ageList: any[] = []
     let livingCostList: number[] = []
     let currentAge: number = data.age
@@ -72,6 +75,13 @@ const Report = () => {
     }
     const totalIncome = totalPlanCost + totalLivingCost
     incomesList = incomesList.map(icome => icome * totalIncome)
+    const showTooltip = () => {
+        clearTimeout(tooltipTimeout)
+        setIsVisibleTooltip(true);
+        tooltipTimeout = setTimeout(() => {
+           setIsVisibleTooltip(false);
+        }, 5000);
+    };
     let option = {
         chart: {
             type: 'bar',
@@ -87,7 +97,23 @@ const Report = () => {
                     enabled: true,
                     delay: 500
                 },
+            },
+            events: {
+                dataPointSelection: (event, chartContext, config) => {
+                    setSelectedIndex(config.dataPointIndex)
+                    showTooltip()
+                }
+            },
+        },
+        states: {
+            active: {
+                filter: {
+                    type: 'none'
+                }
             }
+        },
+        tooltip: {
+            enabled: false,
         },
         dataLabels: {
             enabled: false
@@ -128,9 +154,6 @@ const Report = () => {
             }
         },
         labels: [1,2,3,4,5,6,7,8,9,10,11,12],
-        markers: {
-            size: 0
-        },
         xaxis: {
             labels: {
                 show: false
@@ -220,6 +243,28 @@ const Report = () => {
            setAgeDeath(ageList[index])
        }
     }
+    const tooltipContainer = () => {
+        const from = (selectedIndex >= 0) ? ageList[0] + (5 * selectedIndex) : ageList[0]
+        const plans = lifePlan.filter(p => p.age >= from && p.age < from + 5).map(p => {
+            return {
+                title: p.name.vi, price: formatCurrency(p.expectedCost)
+            }
+        })
+        return (
+            <>
+                {isVisibleTooltip && (
+                    <div className="custom-tooltip">{from} - {from + 4} tuổi
+                        <ul>
+                            {plans.map((p, index:number) => {
+                                return <li key={index}>{p.title}: {p.price}</li>
+                            })}
+                            <li>Chi phí sinh hoạt: {formatCurrency(livingCostList[selectedIndex])}</li>
+                        </ul>
+                    </div>
+                )}
+            </>
+        )
+    }
     const extraBoxContainer = () => {
         if (riskList[activeAge * 2] > 0) {
             return (
@@ -240,7 +285,7 @@ const Report = () => {
         const finalMoney = Math.abs(totalIncome - totalPlanCost - totalLivingCost - riskValue)
         const totalIncomeTxt =  (totalIncome / 1000000000).toFixed(1).replace('.0', '')
         const riskTxt = (finalMoney / 1000000000).toFixed(1).replace('.0', '')
-        let txt = `Tổng thu nhập cần thiết để hoàn thành kế hoạch là <b> ${totalIncomeTxt}</b> tỷ, không có dự phòng rủi ro`
+        let txt = `Tổng thu nhập cần thiết để hoàn thành kế hoạch là <b> ${totalIncomeTxt}</b> tỷ, không có dự phòng rủi ro.`
         if (riskList[activeAge * 2] > 0) {
             txt =  `Khi gặp rủi ro, thu nhập giảm còn  <b>${totalIncomeTxt}</b> tỷ, thiếu <b>${riskTxt}</b> tỷ chi phí điều trị`
         }
@@ -273,6 +318,7 @@ const Report = () => {
                     <div className="header-item txt-red">Trường hợp lý tưởng khi không tham gia bảo hiểm và không gặp phải bất kỳ bệnh hiểm nghèo/tai nạn.</div>
                 </div>
                 <div className="chart-container">
+                    {tooltipContainer()}
                     <Chart options={options} series={series} type="bar"/>
                     <ul className="age-list">
                         {

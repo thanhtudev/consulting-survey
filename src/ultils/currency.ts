@@ -3,7 +3,7 @@ export function formatCurrency(value: number): string {
     if (value >= 1000000000) {
         formattedValue = (value / 1000000000).toFixed(1).replace('.0', '') + ' tỷ'
     } else if (value >= 1000000) {
-        formattedValue = (value / 1000000).toFixed(1) + ' triệu'
+        formattedValue = (value / 1000000).toFixed(1).replace('.0', '') + ' triệu'
     } else {
         return '0'
     }
