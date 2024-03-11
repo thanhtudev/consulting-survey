@@ -102,6 +102,11 @@ image {
 .txt-red {
     color: #FF6400;
 }
+.center {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
 
 .img-content {
     display: flex;
@@ -466,13 +471,13 @@ th {
 .small-box {
     height: calc(50% - 10px);
     background: hsla(24, 100%, 50%, 1);
+    padding-top: 10px;
 }
 .small-box.light {
     background: hsla(20, 91%, 70%, 1);
 }
-.small-box.gradient {
+.gradient {
     background: linear-gradient(353.45deg, #F22F2F -3.2%, #721A88 98.43%);
-    padding-top: 10px;
 
 }
 .large-box {
@@ -606,4 +611,11 @@ th {
 .custom-tooltip li:before {
     content: "- ";
     text-indent: -5px;
+}
+.custom-tooltip.gradient {
+    background: linear-gradient(353.45deg, #F22F2F -3.2%, #721A88 98.43%);
+}
+.font-light {
+    font-size: 14px;
+    font-weight: 300;
 }
