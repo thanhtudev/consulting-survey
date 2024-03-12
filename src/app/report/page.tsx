@@ -39,6 +39,8 @@ const Report = () => {
     if (activeAge >= 0) {
         riskValue = data?.expenses[activeAge * 2]?.treatmentCost || 0
         riskList[activeAge * 2] = riskValue
+    } else {
+        totalPlanCost += planDeath.expectedCost
     }
     for (let i = 0; i < 6; i++) {
         const age = data.age + 10 * i
@@ -56,10 +58,10 @@ const Report = () => {
         const livingCost = data.livingCost * 5
         livingCostList.push(livingCost)
         let ratio = 0
-        const planCost = plan.reduce((accumulator, currentValue) => {
-            return accumulator + currentValue.expectedCost;
+        const planCost = plan.reduce((total, item) => {
+            return total + item.expectedCost;
         }, 0);
-        if (currentAge <= ageDeath) {
+        if (currentAge < ageDeath) {
             totalLivingCost += livingCost
             const incomeRatio = data.incomes.find(d => d.ageGroup === convertAgeToGroup(currentAge))
             ratio = incomeRatio.ratio
@@ -304,6 +306,29 @@ const Report = () => {
             return ('');
         }
     }
+    const startPlan = lifePlan.reduce((total, item) => total + item.expectedCost, 0);
+    const startLight = data.livingCost * 5 * 12
+    const startBlue = startPlan + startLight
+    const blueRatio = (() => {
+        return ((startBlue - totalIncome) / startBlue) * 100
+    })()
+    const orangeRatio = (() => {
+        return ((startPlan - totalPlanCost) / startPlan) * 100
+    })();
+    const lightRatio = (() => {
+        return ((startLight - totalLivingCost) / startLight) * 100
+    })();
+    const generateColorStyle = (color: string, ratio: number) => {
+        const backgroundTop = `linear-gradient(to top, ${color} ${100 - ratio}%, ${color}80 ${ratio}%)`;
+        const backgroundBottom = `linear-gradient(to bottom, ${color}80 ${ratio}%, ${color} ${100 - ratio}%)`;
+
+        return {
+            background: ratio > 50 ? backgroundBottom : backgroundTop
+        };
+    }
+    const blueColorStyle = generateColorStyle("#007AFF", blueRatio);
+    const orangeColorStyle = generateColorStyle("#FF6600", orangeRatio);
+    const lightColorStyle = generateColorStyle("#F89B6D", lightRatio);
     const bottomContainer = () => {
         const finalMoney = Math.abs(totalIncome - totalPlanCost - totalLivingCost - riskValue)
         const totalIncomeTxt = (totalIncome / 1000000000).toFixed(1).replace('.0', '')
@@ -375,14 +400,14 @@ const Report = () => {
                 </div>
                 <div className="info-box-container">
                     <div className="left-column">
-                        <div className="box small-box">
+                        <div className="box small-box" style={orangeColorStyle}>
                             <div className="box-content-top">Chi phí kế hoạch</div>
                             <div className="box-content-mid">{formatCurrency(totalPlanCost)}</div>
                             <div className="box-content-bottom">Tổng chi phí cần thiết để hoàn thành tất cả kế hoạch
                                 cuộc đời
                             </div>
                         </div>
-                        <div className="box small-box light">
+                        <div className="box small-box" style={lightColorStyle}>
                             <div className="box-content-top">Chi phí sinh hoạt</div>
                             <div className="box-content-mid">{formatCurrency(totalLivingCost)}</div>
                             <div className="box-content-bottom">Tổng chi phí cần thiết để duy trì sinh hoạt cuộc sống cơ
@@ -391,7 +416,7 @@ const Report = () => {
                         </div>
                     </div>
                     <div className="right-column">
-                        <div className="box large-box">
+                        <div className="box large-box" style={blueColorStyle}>
                             <div className="box-content-top">Tổng thu nhập cần có</div>
                             <div className="box-content-mid">{formatCurrency(totalIncome)}</div>
                             <div className="box-content-bottom">Tổng thu nhập cần có để đảm bảo cho cả “Chi phí sinh
