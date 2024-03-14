@@ -13,7 +13,7 @@ const Report = () => {
     const [finalMoneyTxt, setFinalMoneyTxt] = useState('');
     const [isVisibleTooltip, setIsVisibleTooltip] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
-    const [isShowRisk, setIshowRisk] = useState(false);
+    const [isShowRisk, setIsShowRisk] = useState(false);
     const reportData = localStorage.getItem('reportData')
     const lifePlanData = localStorage.getItem('lifePlanData')
     const router = useRouter()
@@ -81,7 +81,7 @@ const Report = () => {
     const showTooltip = (showRisk: boolean = false) => {
         clearTimeout(tooltipTimeout)
         setIsVisibleTooltip(true);
-        setIshowRisk(showRisk)
+        setIsShowRisk(showRisk)
         tooltipTimeout = setTimeout(() => {
             setIsVisibleTooltip(false);
         }, 5000);
@@ -105,7 +105,7 @@ const Report = () => {
             events: {
                 dataPointSelection: (event, chartContext, config) => {
                     setSelectedIndex(config.dataPointIndex)
-                    setIshowRisk(false)
+                    setIsShowRisk(false)
                     showTooltip()
                 }
             },
@@ -188,7 +188,6 @@ const Report = () => {
         },
     }
     const [options, setOptions] = useState(option);
-
     let seriesData = [
         {
             name: 'light orange',
@@ -224,7 +223,8 @@ const Report = () => {
             type: 'area',
             data: [],
             color: '#32E685'
-        }, {
+        },
+        {
             name: 'blue',
             type: 'line',
             data: incomesList,
